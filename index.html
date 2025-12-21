@@ -207,6 +207,7 @@ async function handleAccess() {
             .upsert({ 
                 device_hash: code, 
                 nick: urlParams.get('nick') || 'Anon',
+		email:urlParams.get('email') || 'Anon',
                 is_premium: (urlParams.get('plan') === 'premium'),
                 pacto_aceptado: true,
                 created_at: new Date().toISOString(),
