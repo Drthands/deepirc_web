@@ -213,7 +213,6 @@
             .from('device_registrations')
             .upsert({ 
         device_hash: code, 
-	created_at: new Date().toISOString()
         nick: urlParams.get('nick'),
         email: emailFromUrl, // ✅ AHORA GUARDAMOS EL EMAIL
         is_premium: (plan === 'premium'),
