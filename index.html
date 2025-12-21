@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepIRC | Centro de Operaciones</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;500&display=swap');
+        body { font-family: 'Fira Code', monospace; background-color: #050505; color: #00FF41; }
+        .hacker-border { border: 1px solid #00FF41; box-shadow: 0 0 5px #00FF41; }
+        .hidden-section { display: none; }
+        input { background: #000; border: 1px solid #004411; color: #00FF41; }
+        input:focus { border-color: #00FF41; outline: none; }
+    </style>
+</head>
+<body class="p-4 md:p-12">
+
+    <!-- SECCIÓN PÚBLICA: LANDING -->
+    <header class="max-w-5xl mx-auto border-b border-green-900 pb-8 mb-12">
+        <h1 class="text-3xl font-bold tracking-tighter">DEEP_IRC_INFOCENTER_v1.0</h1>
+        <p class="text-green-700 text-sm mt-2">ESTADO: CONEXIÓN_SEGURA_E2EE</p>
+    </header>
+
+    <main class="max-w-5xl mx-auto">
+        <!-- PROMOCIÓN -->
+        <section class="mb-20 text-center md:text-left">
+            <h2 class="text-5xl font-bold mb-6 leading-tight">IRC sin huellas.<br><span class="text-green-900">Privacidad por diseño.</span></h2>
+            <p class="text-lg text-green-500 max-w-2xl">DeepIRC no es solo un cliente. Es un túnel hacia la red IRC con enrutamiento Tor nativo, cifrado OTR y aislamiento total de metadatos.</p>
+        </section>
+
+        <!-- MANUAL DE AYUDA (Con tus conocimientos de la app) -->
+        <section id="help" class="mb-20">
+            <h3 class="text-2xl underline mb-8">>> MANUAL_DE_OPERACIONES</h3>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="hacker-border p-6 bg-green-950/10">
+                    <h4 class="font-bold text-white mb-2">[01] MODO PARANOICO</h4>
+                    <p class="text-sm">Activa el 'App Isolation' en Ajustes. La app cortará toda conexión automática a servidores de ayuda para evitar rastreos de IP accidentales.</p>
+                </div>
+                <div class="hacker-border p-6 bg-green-950/10">
+                    <h4 class="font-bold text-white mb-2">[02] RUTA TOR (SOCKS5)</h4>
+                    <p class="text-sm">Configura 127.0.0.1:9050. DeepIRC enviará tus paquetes a través de la red de cebolla. Requiere Orbot activo.</p>
+                </div>
+                <div class="hacker-border p-6 bg-green-950/10">
+                    <h4 class="font-bold text-white mb-2">[03] NICK EVOLUTIVO</h4>
+                    <p class="text-sm">Identidades efímeras. El sistema generará nicks aleatorios en cada conexión para que nadie pueda trazar un perfil histórico de tu actividad.</p>
+                </div>
+                <div class="hacker-border p-6 bg-green-950/10">
+                    <h4 class="font-bold text-white mb-2">[04] MENSAJES EFÍMEROS</h4>
+                    <p class="text-sm">Autodestrucción local. Los logs se borran de tu dispositivo tras el tiempo configurado. No queda rastro forense.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN DE VINCULACIÓN (CON ENTRADA OCULTA) -->
+        <section class="mb-20 py-12 border-y border-green-900">
+            <h3 class="text-2xl mb-6">>> VINCULACIÓN_DE_CUENTA</h3>
+            <p class="mb-4 text-green-600">Introduce el código de verificación proporcionado por la aplicación para acceder a tu panel de contrato y funciones premium.</p>
+            
+            <div class="flex flex-col md:flex-row gap-4 max-w-xl">
+                <input type="text" id="accessCode" placeholder="TOKEN_HEX_ID" class="p-3 font-mono w-full">
+                <button onclick="handleAccess()" class="bg-green-600 text-black px-8 py-3 font-bold hover:bg-white transition-colors">PROCESAR</button>
+            </div>
+            <p id="statusMsg" class="mt-4 text-xs italic text-green-800"></p>
+        </section>
+
+        <!-- PANEL DE ADMIN (OCULTO POR DEFECTO) -->
+        <section id="adminPanel" class="hidden-section mb-20 bg-red-950/10 p-8 border-2 border-red-600">
+            <h3 class="text-2xl text-red-500 font-bold mb-6">!! SISTEMA_ADMINISTRACIÓN_ROOT !!</h3>
+            <div class="overflow-x-auto text-red-400 text-sm">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-red-900 text-left">
+                            <th class="py-2">UUID_APP</th>
+                            <th>NICK_ASOCIADO</th>
+                            <th>ESTADO_CONTRATO</th>
+                            <th>ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTable">
+                        <!-- Aquí cargaremos datos de Supabase más adelante -->
+                        <tr>
+                            <td class="py-2">f47ac10b-58cc...</td>
+                            <td>Pablo_Admin</td>
+                            <td class="text-green-500">ACTIVO</td>
+                            <td>[REVOCAR] [EDITAR]</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+<!-- SECCIÓN DEL CONTRATO / PACTO -->
+<section id="contrato" class="mb-20 hacker-border p-8 bg-green-950/5">
+    <h3 class="text-2xl mb-6 text-white uppercase tracking-widest">>> PACTO_DE_CONFIANZA</h3>
+    <div class="space-y-4 text-green-400 leading-relaxed max-w-2xl text-sm">
+        <p><span class="text-white font-bold">[01] TUS DATOS SON TUYOS:</span> DeepIRC no recopila nada sobre ti que no sea estrictamente necesario para que la app funcione (como tus servidores o nicks). A mí no me interesan tus datos, no vivo de ellos, ni se los vendería a nadie aunque me pagasen con el servidor más rápido del mundo. Punto.</p>
+        <p><span class="text-white font-bold">[02] CONFIANZA MUTUA:</span> Esto es un pacto. Yo confío en que no vas a intentar romper el sistema y tú confías en mi código. Si en algún momento dejas de confiar en mí o en lo que hace esta app, lo mejor que puedes hacer es borrarla. Sin rencores.</p>
+        <p><span class="text-white font-bold">[03] USO CIVILIZADO:</span> Eres responsable de lo que digas y hagas en las redes IRC. Respeta las normas de los servidores a los que te conectes y mantén un comportamiento cívico. No uses DeepIRC para hacer el mal; si detecto un uso fraudulento o dañino, me reservo el derecho de tomar las medidas que crea oportunas (y créeme, tengo herramientas para ello).</p>
+        <p><span class="text-white font-bold">[04] APORTACIONES:</span> Si decides poner dinero para apoyar este proyecto, que sepas que es una donación para el mantenimiento y el café del desarrollo. No estás "comprando" la app; la propiedad intelectual sigue siendo mía, pero te agradezco infinito que me ayudes a mantener la máquina funcionando.</p>
+    </div>
+    <div class="mt-8">
+        <label class="flex items-center space-x-3 cursor-pointer">
+            <input type="checkbox" id="acceptPact" class="w-5 h-5 accent-green-500">
+            <span class="text-xs uppercase">Acepto el pacto de honor DeepIRC</span>
+        </label>
+    </div>
+</section>
+
+
+    </main>
+
+       <!-- ... resto del HTML anterior ... -->
+
+    <script>
+        function handleAccess() {
+            const tokenInput = document.getElementById('accessCode');
+            const code = tokenInput.value.trim();
+            const status = document.getElementById('statusMsg');
+            const adminPanel = document.getElementById('adminPanel');
+            const isAccepted = document.getElementById('acceptPact').checked;
+
+            // 1. Verificación del Pacto
+            if (!isAccepted) {
+                status.innerText = "ERROR: Debes aceptar el Pacto de Honor para proceder.";
+                status.style.color = "#ef4444"; // Rojo
+                return;
+            }
+
+            // 2. CLAVE MAESTRA OCULTA (Cámbiala por la tuya personal)
+            const MASTER_KEY = "DEEP_DRTHANDS_2025"; 
+
+            if (code === MASTER_KEY) {
+                adminPanel.classList.remove('hidden-section');
+                status.innerText = "ACCESO ROOT CONCEDIDO. BIENVENIDO, OPERADOR.";
+                status.style.color = "#00FF41"; // Verde neón
+                adminPanel.scrollIntoView({ behavior: 'smooth' });
+                
+                // Limpiamos el input para no dejar rastro
+                tokenInput.value = ""; 
+            } 
+            // 3. Lógica para usuarios normales (Tokens de la App)
+            else if (code.length >= 8) {
+                status.innerText = "TOKEN_VALIDO: Procesando vinculación de cuenta segura...";
+                status.style.color = "#00FF41";
+                // Aquí llamaremos a Supabase en el futuro
+            } 
+            else {
+                status.innerText = "ERROR: El token no es válido o está mal formateado.";
+                status.style.color = "#ef4444";
+            }
+        }
+    </script>
+<!-- Cargar la librería de Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+    // 1. CONFIGURACIÓN (Saca estos datos de tu panel de Supabase > Settings > API)
+    const SUPABASE_URL = 'https://bbbqjzjaivzrywwkczry.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiYnFqemphaXZ6cnl3d2tjenJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzMjkwMzAsImV4cCI6MjA4MTkwNTAzMH0.6bMDVnoOhiigahZOJU7e59Nn6q95Kop4U4h9iwEtAhQ';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // 2. FUNCIÓN PARA VINCULAR (Ejemplo de uso)
+    async function vincularDispositivo(tokenApp) {
+        const { data, error } = await supabase
+            .from('usuarios') // Nombre de tu tabla en Supabase
+            .insert([{ uuid: tokenApp, premium: false }]);
+        
+        if (error) {
+            console.error("Error:", error.message);
+            document.getElementById('statusMsg').innerText = "Error de conexión con la base de datos.";
+        } else {
+            document.getElementById('statusMsg').innerText = "Vínculo correcto. Pacto aceptado.";
+        }
+    }
+</script>
+
+</body>
+</html>
+
+</body>
+</html>
