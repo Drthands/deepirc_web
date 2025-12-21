@@ -182,51 +182,52 @@
     let currentLang = 'es';
 
     // 2. FUNCIÓN PRINCIPAL DE ACCESO
-    async function handleAccess() {
-        const tokenInput = document.getElementById('accessCode');
-        const code = tokenInput.value.trim();
-        const status = document.getElementById('statusMsg');
-        const isAccepted = document.getElementById('acceptPact').checked;
-        const urlParams = new URLSearchParams(window.location.search);
-        
-        if (!isAccepted) {
-            status.innerText = translations[currentLang].pacto_err;
-            status.style.color = "#ef4444";
-            return;
-        }
+   // Asegúrate de que esto esté arriba del todo del script
 
-        // Acceso Admin Oculto
-        if (code === "DEEP_DRTHANDS_2025") {
-            document.getElementById('adminPanel').classList.remove('hidden-section');
-            status.innerText = translations[currentLang].root_ok;
-            return;
-        }
+async function handleAccess() {
+    const tokenInput = document.getElementById('accessCode');
+    const code = tokenInput.value.trim();
+    const status = document.getElementById('statusMsg');
+    const isAccepted = document.getElementById('acceptPact').checked;
+    const urlParams = new URLSearchParams(window.location.search);
 
-        if (code.length < 8) {
-            status.innerText = translations[currentLang].token_err;
-            return;
-        }
+    if (!isAccepted) {
+        status.innerText = "ERROR: Debes aceptar el Pacto de Honor.";
+        status.style.color = "#ef4444";
+        return;
+    }
 
-        // REGISTRO EN SUPABASE
-        status.innerText = translations[currentLang].sync;
-        const { error } = await _supabase
+    status.innerText = "SINCRONIZANDO CON LA RED DEEP...";
+    status.style.color = "#00FF41";
+
+    try {
+        // ✅ USAR UPSERT PARA INSERTAR O ACTUALIZAR
+        const { data, error } = await _supabase
             .from('device_registrations')
             .upsert({ 
-        device_hash: code, 
-        nick: urlParams.get('nick'),
-        email: emailFromUrl, // ✅ AHORA GUARDAMOS EL EMAIL
-        is_premium: (plan === 'premium'),
-        last_access: new Date().toISOString()
-    });
+                device_hash: code, 
+                nick: urlParams.get('nick') || 'Anon',
+                is_premium: (urlParams.get('plan') === 'premium'),
+                pacto_aceptado: true,
+                created_at: new Date().toISOString(),
+                last_access: new Date().toISOString()
+            });
 
         if (error) {
-            status.innerText = "DATABASE_ERROR: " + error.message;
+            console.error("Supabase Error:", error);
+            status.innerText = "ERROR DE RED: " + error.message;
             status.style.color = "#ef4444";
         } else {
-            status.innerText = translations[currentLang].done;
+            console.log("Success:", data);
+            status.innerText = "VINCULACIÓN EXITOSA. Vuelve a la App.";
             status.style.color = "#00FF41";
         }
+    } catch (err) {
+        console.error("Crashed:", err);
+        status.innerText = "ERROR CRÍTICO: No se pudo contactar con el servidor.";
     }
+}
+
 
     // 3. AUTO-RELLENO E IDIOMA AL CARGAR
     window.onload = () => {
