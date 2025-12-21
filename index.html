@@ -153,65 +153,88 @@
 <!-- Cargar la librería de Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script>
-    // 1. CONFIGURACIÓN (Saca estos datos de tu panel de Supabase > Settings > API)
-    const SUPABASE_URL = 'https://bbbqjzjaivzrywwkczry.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiYnFqemphaXZ6cnl3d2tjenJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzMjkwMzAsImV4cCI6MjA4MTkwNTAzMH0.6bMDVnoOhiigahZOJU7e59Nn6q95Kop4U4h9iwEtAhQ';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+<!-- Cargar Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    // 2. FUNCIÓN PARA VINCULAR (Ejemplo de uso)
-    async function vincularDispositivo(tokenApp) {
-        const { error } = await _supabase
-        .from('device_registrations')
-        .upsert({ 
-            device_hash: code, 
-            nick: urlParams.get('nick') || 'User_' + code.substring(0,4),
-            is_premium: (plan === 'premium'),
-            last_access: new Date().toISOString()
-        });
-        
-        if (error) {
-            console.error("Error:", error.message);
-            document.getElementById('statusMsg').innerText = "Error de conexión con la base de datos.";
-        } else {
-            document.getElementById('statusMsg').innerText = "Vínculo correcto. Pacto aceptado.";
-        }
-    }
-</script>
-<script>
+<script>    // 1. CONFIGURACIÓN
+    const SUPABASE_URL = 'https://bbbqjzjaivzrywwkczry.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // Tu key completa
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
     const translations = {
         es: {
-            title: "Pacto de Honor",
-            desc: "Tus datos son tuyos. No me interesan. Punto.",
-            btn: "PROCESAR VINCULACIÓN",
-            manual: "Manual de Uso"
+            pacto_err: "ERROR: Debes aceptar el Pacto de Honor para proceder.",
+            root_ok: "ACCESO ROOT CONCEDIDO. BIENVENIDO, OPERADOR.",
+            token_err: "ERROR: El token no es válido o está mal formateado.",
+            sync: "SINCRONIZANDO CON LA RED DEEP...",
+            done: "VINCULACIÓN EXITOSA. Puedes volver a la App."
         },
         en: {
-            title: "Pact of Honor",
-            desc: "Your data belongs to you. I don't want it. Period.",
-            btn: "PROCESS LINKING",
-            manual: "User Manual"
-        },
-        // Añadir aquí FR, IT, PT, ZH, JA...
+            pacto_err: "ERROR: You must accept the Pact of Honor to proceed.",
+            root_ok: "ROOT ACCESS GRANTED. WELCOME, OPERATOR.",
+            token_err: "ERROR: Invalid or malformed token.",
+            sync: "SYNCING WITH DEEP NETWORK...",
+            done: "LINKING SUCCESSFUL. You can return to the App."
+        }
+        // Aquí puedes añadir fr, it, pt, zh, ja siguiendo el mismo esquema
     };
 
-    function setLanguage(lang) {
-        localStorage.setItem('deep_lang', lang);
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            el.innerText = translations[lang][key] || translations['en'][key];
-        });
+    let currentLang = 'es';
+
+    // 2. FUNCIÓN PRINCIPAL DE ACCESO
+    async function handleAccess() {
+        const tokenInput = document.getElementById('accessCode');
+        const code = tokenInput.value.trim();
+        const status = document.getElementById('statusMsg');
+        const isAccepted = document.getElementById('acceptPact').checked;
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        if (!isAccepted) {
+            status.innerText = translations[currentLang].pacto_err;
+            status.style.color = "#ef4444";
+            return;
+        }
+
+        // Acceso Admin Oculto
+        if (code === "DEEP_DRTHANDS_2025") {
+            document.getElementById('adminPanel').classList.remove('hidden-section');
+            status.innerText = translations[currentLang].root_ok;
+            return;
+        }
+
+        if (code.length < 8) {
+            status.innerText = translations[currentLang].token_err;
+            return;
+        }
+
+        // REGISTRO EN SUPABASE
+        status.innerText = translations[currentLang].sync;
+        const { error } = await _supabase
+            .from('device_registrations')
+            .upsert({ 
+                device_hash: code, 
+                nick: urlParams.get('nick') || 'User_' + code.substring(0,4),
+                is_premium: (urlParams.get('plan') === 'premium'),
+                last_access: new Date().toISOString()
+            });
+
+        if (error) {
+            status.innerText = "DATABASE_ERROR: " + error.message;
+            status.style.color = "#ef4444";
+        } else {
+            status.innerText = translations[currentLang].done;
+            status.style.color = "#00FF41";
+        }
     }
 
-    // Al cargar, detectamos el idioma del navegador o el guardado
+    // 3. AUTO-RELLENO E IDIOMA AL CARGAR
     window.onload = () => {
-        const savedLang = localStorage.getItem('deep_lang') || navigator.language.split('-')[0] || 'en';
-        setLanguage(savedLang);
+        const urlParams = new URLSearchParams(window.location.search);
+        currentLang = localStorage.getItem('deep_lang') || navigator.language.split('-')[0] || 'es';
         
-        // Capturar datos de la App (ID, Nick, Plan)
-        const params = new URLSearchParams(window.location.search);
-        if (params.has('id')) {
-            document.getElementById('accessCode').value = params.get('id');
+        if (urlParams.has('id')) {
+            document.getElementById('accessCode').value = urlParams.get('id');
+            document.getElementById('statusMsg').innerText = "DISPOSITIVO DETECTADO: " + urlParams.get('nick');
         }
     };
 </script>
