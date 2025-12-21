@@ -161,9 +161,14 @@
 
     // 2. FUNCIÓN PARA VINCULAR (Ejemplo de uso)
     async function vincularDispositivo(tokenApp) {
-        const { data, error } = await supabase
-            .from('usuarios') // Nombre de tu tabla en Supabase
-            .insert([{ uuid: tokenApp, premium: false }]);
+        const { error } = await _supabase
+        .from('device_registrations')
+        .upsert({ 
+            device_hash: code, 
+            nick: urlParams.get('nick') || 'User_' + code.substring(0,4),
+            is_premium: (plan === 'premium'),
+            last_access: new Date().toISOString()
+        });
         
         if (error) {
             console.error("Error:", error.message);
