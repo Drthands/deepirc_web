@@ -212,11 +212,13 @@
         const { error } = await _supabase
             .from('device_registrations')
             .upsert({ 
-                device_hash: code, 
-                nick: urlParams.get('nick') || 'User_' + code.substring(0,4),
-                is_premium: (urlParams.get('plan') === 'premium'),
-                last_access: new Date().toISOString()
-            });
+        device_hash: code, 
+	created_at: new Date().toISOString()
+        nick: urlParams.get('nick'),
+        email: emailFromUrl, // ✅ AHORA GUARDAMOS EL EMAIL
+        is_premium: (plan === 'premium'),
+        last_access: new Date().toISOString()
+    });
 
         if (error) {
             status.innerText = "DATABASE_ERROR: " + error.message;
