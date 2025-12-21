@@ -173,6 +173,43 @@
         }
     }
 </script>
+<script>
+    const translations = {
+        es: {
+            title: "Pacto de Honor",
+            desc: "Tus datos son tuyos. No me interesan. Punto.",
+            btn: "PROCESAR VINCULACIÓN",
+            manual: "Manual de Uso"
+        },
+        en: {
+            title: "Pact of Honor",
+            desc: "Your data belongs to you. I don't want it. Period.",
+            btn: "PROCESS LINKING",
+            manual: "User Manual"
+        },
+        // Añadir aquí FR, IT, PT, ZH, JA...
+    };
+
+    function setLanguage(lang) {
+        localStorage.setItem('deep_lang', lang);
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            el.innerText = translations[lang][key] || translations['en'][key];
+        });
+    }
+
+    // Al cargar, detectamos el idioma del navegador o el guardado
+    window.onload = () => {
+        const savedLang = localStorage.getItem('deep_lang') || navigator.language.split('-')[0] || 'en';
+        setLanguage(savedLang);
+        
+        // Capturar datos de la App (ID, Nick, Plan)
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('id')) {
+            document.getElementById('accessCode').value = params.get('id');
+        }
+    };
+</script>
 
 </body>
 </html>
