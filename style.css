@@ -1,0 +1,369 @@
+/* Estilos Matrix/Hacking */
+.font-matrix {
+    font-family: 'Fira Code', 'Share Tech Mono', monospace;
+}
+
+/* Efecto de terminal */
+.terminal-effect {
+    position: relative;
+}
+
+.terminal-effect::before {
+    content: ">";
+    position: absolute;
+    left: -20px;
+    top: 10px;
+    color: #00FF41;
+    font-size: 20px;
+    opacity: 0.7;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 0.7; }
+    51%, 100% { opacity: 0.1; }
+}
+
+/* Tarjetas cyber */
+.cyber-card {
+    background: rgba(0, 20, 10, 0.3);
+    border: 1px solid rgba(0, 255, 65, 0.3);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.cyber-card:hover {
+    border-color: rgba(0, 255, 65, 0.7);
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+}
+
+.cyber-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00FF41);
+    animation: scan 3s infinite;
+}
+
+.cyber-card-red {
+    background: rgba(40, 0, 0, 0.3);
+    border: 1px solid rgba(255, 65, 65, 0.3);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Inputs cyber */
+.cyber-input {
+    background: rgba(0, 10, 5, 0.5);
+    border: 1px solid rgba(0, 255, 65, 0.2);
+    border-radius: 2px;
+    color: #00FF41;
+    transition: all 0.3s ease;
+}
+
+.cyber-input:focus {
+    outline: none;
+    border-color: #00FF41;
+    box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+}
+
+.cyber-input::placeholder {
+    color: rgba(0, 255, 65, 0.4);
+}
+
+/* Botones cyber */
+.cyber-button {
+    background: linear-gradient(45deg, #003300, #006600);
+    border: 1px solid #00FF41;
+    color: #00FF41;
+    padding: 12px 24px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.cyber-button:hover {
+    background: linear-gradient(45deg, #006600, #009900);
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+    transform: translateY(-2px);
+}
+
+.cyber-button:active {
+    transform: translateY(0);
+}
+
+.cyber-button::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 20%;
+    height: 200%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: rotate(30deg);
+    transition: all 0.3s;
+}
+
+.cyber-button:hover::after {
+    left: 140%;
+}
+
+/* Botones de idioma */
+.lang-btn {
+    background: rgba(0, 40, 20, 0.5);
+    border: 1px solid rgba(0, 255, 65, 0.2);
+    color: rgba(0, 255, 65, 0.7);
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.lang-btn:hover {
+    border-color: #00FF41;
+    color: #00FF41;
+}
+
+.lang-btn.active {
+    background: rgba(0, 255, 65, 0.2);
+    border-color: #00FF41;
+    color: #00FF41;
+}
+
+/* Enlaces de navegación */
+.nav-link {
+    color: rgba(0, 255, 65, 0.6);
+    text-decoration: none;
+    padding: 8px 16px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #00FF41;
+    border-bottom: 2px solid #00FF41;
+}
+
+.nav-link.active {
+    color: #00FF41;
+    border-bottom: 2px solid #00FF41;
+    background: rgba(0, 255, 65, 0.05);
+}
+
+/* Secciones */
+.section-content {
+    display: none;
+    animation: fadeIn 0.5s ease;
+}
+
+.section-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Título de sección */
+.section-title {
+    position: relative;
+    padding-left: 20px;
+}
+
+.section-title::before {
+    content: ">";
+    position: absolute;
+    left: 0;
+    color: #00FF41;
+    animation: blink 1s infinite;
+}
+
+/* Estado cyber */
+.cyber-status {
+    background: rgba(0, 30, 15, 0.3);
+    border-left: 3px solid #00FF41;
+    border-radius: 2px;
+}
+
+.cyber-info {
+    background: rgba(0, 40, 20, 0.2);
+    border: 1px solid rgba(0, 255, 65, 0.1);
+    border-radius: 4px;
+}
+
+/* Tabla cyber */
+.cyber-table {
+    background: rgba(0, 10, 5, 0.2);
+}
+
+.cyber-table th {
+    background: rgba(0, 30, 15, 0.4);
+    padding: 12px;
+    text-align: left;
+    font-weight: bold;
+    border-bottom: 2px solid rgba(0, 255, 65, 0.3);
+}
+
+.cyber-table td {
+    padding: 12px;
+    border-bottom: 1px solid rgba(0, 255, 65, 0.1);
+}
+
+.cyber-table tr:hover {
+    background: rgba(0, 255, 65, 0.05);
+}
+
+/* Animación de escritura */
+.typing-animation {
+    border-right: 2px solid #00FF41;
+    white-space: nowrap;
+    overflow: hidden;
+    animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: #00FF41; }
+}
+
+/* Efecto de escaneo */
+@keyframes scan {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Glitch effect */
+.glitch {
+    position: relative;
+}
+
+.glitch::before,
+.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.glitch::before {
+    left: 2px;
+    text-shadow: -1px 0 #ff00ff;
+    animation: glitch-1 2s infinite linear alternate-reverse;
+}
+
+.glitch::after {
+    left: -2px;
+    text-shadow: 1px 0 #00ffff;
+    animation: glitch-2 3s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-1 {
+    0% { clip-path: inset(40% 0 61% 0); }
+    5% { clip-path: inset(92% 0 1% 0); }
+    10% { clip-path: inset(43% 0 1% 0); }
+    100% { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes glitch-2 {
+    0% { clip-path: inset(25% 0 58% 0); }
+    5% { clip-path: inset(87% 0 1% 0); }
+    100% { clip-path: inset(0 0 0 0); }
+}
+
+/* Pact checkbox personalizado */
+.pact-checkbox input[type="checkbox"] {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: rgba(0, 20, 10, 0.5);
+    border: 2px solid rgba(0, 255, 65, 0.3);
+    border-radius: 3px;
+    cursor: pointer;
+    position: relative;
+}
+
+.pact-checkbox input[type="checkbox"]:checked {
+    background: rgba(0, 255, 65, 0.2);
+    border-color: #00FF41;
+}
+
+.pact-checkbox input[type="checkbox"]:checked::after {
+    content: "✓";
+    position: absolute;
+    color: #00FF41;
+    font-size: 16px;
+    font-weight: bold;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Botón pequeño cyber */
+.cyber-button-small {
+    background: rgba(0, 30, 15, 0.5);
+    border: 1px solid rgba(0, 255, 65, 0.3);
+    color: #00FF41;
+    padding: 6px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cyber-button-small:hover {
+    background: rgba(0, 255, 65, 0.1);
+    border-color: #00FF41;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .section-title {
+        font-size: 1.5rem;
+    }
+    
+    .nav-link {
+        padding: 6px 10px;
+        font-size: 14px;
+    }
+    
+    .cyber-button {
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 20, 10, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 65, 0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 255, 65, 0.5);
+}
