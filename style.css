@@ -650,3 +650,164 @@ input[type="button"],
 .highlight {
     animation: highlight 2s ease;
 }
+
+/* Añadir al archivo style.css existente */
+
+/* Estilos para la sección de descargas */
+.border-purple-500\/30 {
+    border-color: rgba(168, 85, 247, 0.3);
+}
+
+.bg-purple-600 {
+    background-color: #7c3aed;
+}
+
+.border-purple-500 {
+    border-color: #8b5cf6;
+}
+
+.bg-purple-900\/20 {
+    background-color: rgba(76, 29, 149, 0.2);
+}
+
+.border-purple-900\/30 {
+    border-color: rgba(76, 29, 149, 0.3);
+}
+
+.text-purple-300 {
+    color: #d8b4fe;
+}
+
+.text-purple-400 {
+    color: #c084fc;
+}
+
+.text-purple-500 {
+    color: #a855f7;
+}
+
+/* Highlight para pacto */
+.highlight-pact {
+    background: rgba(0, 255, 65, 0.1);
+    border: 2px solid #00FF41;
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+    animation: pulse-highlight 2s infinite;
+}
+
+.highlight-pact-blink {
+    background: rgba(255, 65, 65, 0.1);
+    border: 2px solid #ff4141;
+    box-shadow: 0 0 20px rgba(255, 65, 65, 0.3);
+}
+
+@keyframes pulse-highlight {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(0, 255, 65, 0.6);
+    }
+}
+
+/* Estilos para botón flotante */
+#contractQuickAccess {
+    transition: all 0.3s ease;
+}
+
+#contractQuickAccess:hover {
+    transform: scale(1.1);
+}
+
+/* Estilos para dispositivos táctiles */
+.touch-device button,
+.touch-device .nav-link,
+.touch-device .lang-btn {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+.active-touch {
+    opacity: 0.7;
+    transform: scale(0.98);
+}
+
+/* Ajustes responsive para navegación */
+@media (max-width: 768px) {
+    .nav-link {
+        white-space: nowrap;
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+    
+    #contractQuickAccess {
+        display: block !important;
+    }
+}
+
+/* Estilos para sección de descargas */
+.download-card {
+    transition: all 0.3s ease;
+}
+
+.download-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 255, 65, 0.1);
+}
+
+/* Estilos para advertencias */
+.bg-yellow-900\/20 {
+    background-color: rgba(113, 63, 18, 0.2);
+}
+
+.border-yellow-700\/30 {
+    border-color: rgba(161, 98, 7, 0.3);
+}
+
+.text-yellow-300 {
+    color: #fde047;
+}
+
+.text-yellow-500 {
+    color: #eab308;
+}
+
+/* Estilos para iconos de redes sociales */
+.social-icon {
+    transition: all 0.3s ease;
+}
+
+.social-icon:hover {
+    transform: translateY(-3px);
+    filter: brightness(1.2);
+}
+
+/* Mejoras para tablas en móvil */
+@media (max-width: 640px) {
+    .cyber-table th,
+    .cyber-table td {
+        padding: 8px 4px;
+        font-size: 11px;
+    }
+    
+    .cyber-table .hidden {
+        display: none;
+    }
+}
+
+/* Ajustes para inputs en móvil */
+@media (max-width: 640px) {
+    .cyber-input {
+        font-size: 16px; /* Previene zoom en iOS */
+    }
+}
+
+/* Animación de carga para descargas */
+@keyframes download-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.downloading {
+    animation: download-pulse 1s infinite;
+}

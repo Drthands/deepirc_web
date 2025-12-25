@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">DeepIRC | Recuperación de Identidad</title>
+    <title>DeepIRC | Recuperación de Identidad</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,372 +14,193 @@
     
     <!-- Iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Meta tags -->
+    <meta name="theme-color" content="#000000">
 </head>
-<body class="bg-black text-green-400 font-matrix min-h-screen overflow-x-hidden">
+<body class="bg-black text-green-400 font-matrix min-h-screen">
     
-    <!-- Efecto Matrix de fondo -->
-    <div id="matrixBackground"></div>
-    
-    <!-- Contenedor principal con efecto de terminal -->
-    <div class="container mx-auto px-4 py-12 relative z-10 terminal-effect">
+    <!-- Contenedor principal -->
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
         
-        <!-- Header con logo y estado -->
-        <header class="flex flex-col md:flex-row justify-between items-center border-b border-green-900/50 pb-6 mb-8">
-            <div class="flex items-center space-x-4 mb-4 md:mb-0">
-                <div class="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
-                <div>
-                    <h1 class="text-2xl md:text-3xl font-bold tracking-wider glitch" data-text="DEEP_IRC_RECOVERY_v2.0">
-                        DEEP_IRC_RECOVERY_v2.0
-                    </h1>
-                    <p class="text-xs text-green-600 mt-1" id="connectionStatus">MODO_RECUPERACIÓN_ACTIVO</p>
-                </div>
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8 border-b border-green-900/50 pb-4">
+            <div class="flex items-center">
+                <div class="w-3 h-3 bg-yellow-500 rounded-full animate-pulse mr-3"></div>
+                <h1 class="text-xl md:text-2xl font-bold">DEEP_IRC_RECOVERY</h1>
             </div>
-            
-            <!-- Selector de idioma -->
-            <div class="flex items-center space-x-4">
-                <div class="flex space-x-2">
-                    <button class="lang-btn active" data-lang="es" title="Español">ES</button>
-                    <button class="lang-btn" data-lang="en" title="English">EN</button>
-                    <button class="lang-btn" data-lang="fr" title="Français">FR</button>
-                </div>
-                <div class="h-6 border-r border-green-900"></div>
-                <a href="index.html" class="text-xs hover:text-green-300 transition-colors flex items-center">
-                    <i class="fas fa-arrow-left mr-2"></i>
-                    <span data-i18n="nav.back">VOLVER</span>
-                </a>
-            </div>
+            <a href="index.html" class="text-green-600 hover:text-green-400 text-sm">
+                <i class="fas fa-arrow-left mr-2"></i>
+                VOLVER
+            </a>
         </header>
         
-        <!-- Progreso de recuperación -->
-        <div class="mb-10">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold" data-i18n="recovery.title">>> RECLAMAR_IDENTIDAD_ELITE</h2>
-                <div class="flex items-center text-sm text-green-600">
-                    <i class="fas fa-user-shield mr-2"></i>
-                    <span data-i18n="recovery.secure">CANAL_SEGURO_ACTIVO</span>
+        <!-- Contenido principal -->
+        <div class="cyber-card p-6 md:p-8">
+            <div class="mb-6">
+                <h2 class="text-lg md:text-xl font-bold mb-2" id="recoveryTitle">
+                    >> RECUPERACIÓN DE IDENTIDAD
+                </h2>
+                <p class="text-sm text-green-600" id="recoverySubtitle">
+                    Sistema seguro de recuperación de cuentas
+                </p>
+            </div>
+            
+            <!-- Pasos de recuperación -->
+            <div id="recoverySteps">
+                <!-- Se cargará dinámicamente -->
+            </div>
+            
+            <!-- Estado -->
+            <div id="recoveryStatus" class="cyber-status p-4 mt-6 hidden">
+                <div class="flex items-center">
+                    <i class="fas fa-sync-alt animate-spin mr-3"></i>
+                    <span id="statusText">PROCESANDO...</span>
                 </div>
             </div>
             
-            <!-- Pasos -->
-            <div class="grid grid-cols-3 gap-4 mb-8">
-                <div class="text-center">
-                    <div class="w-10 h-10 mx-auto mb-2 rounded-full border-2 border-green-500 flex items-center justify-center bg-green-950/30">
-                        <span class="font-bold">1</span>
-                    </div>
-                    <span class="text-xs" data-i18n="recovery.step1">VERIFICAR ID</span>
-                </div>
-                <div class="text-center">
-                    <div class="w-10 h-10 mx-auto mb-2 rounded-full border-2 border-green-900 flex items-center justify-center bg-black">
-                        <span class="font-bold text-green-900">2</span>
-                    </div>
-                    <span class="text-xs text-green-900" data-i18n="recovery.step2">CONFIRMAR EMAIL</span>
-                </div>
-                <div class="text-center">
-                    <div class="w-10 h-10 mx-auto mb-2 rounded-full border-2 border-green-900 flex items-center justify-center bg-black">
-                        <span class="font-bold text-green-900">3</span>
-                    </div>
-                    <span class="text-xs text-green-900" data-i18n="recovery.step3">VINCULAR</span>
-                </div>
+            <!-- Enlace de regreso -->
+            <div class="mt-8 pt-6 border-t border-green-900/30 text-center">
+                <a href="index.html#recovery" class="text-green-500 hover:text-green-300 text-sm">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Volver al centro de operaciones
+                </a>
             </div>
         </div>
         
-        <!-- Contenido principal -->
-        <main class="max-w-3xl mx-auto">
-            <!-- Paso 1: Verificación de identidad -->
-            <div id="step1" class="cyber-card p-8 mb-8">
-                <div class="flex items-start mb-6">
-                    <div class="text-green-400 mr-4">
-                        <i class="fas fa-fingerprint text-3xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold mb-2" data-i18n="recovery.verifyTitle">VERIFICACIÓN DE HUELLA DIGITAL</h3>
-                        <p class="text-sm text-green-300/70" data-i18n="recovery.verifyDesc">
-                            Proporciona tu nick y contraseña maestra para iniciar el proceso de recuperación.
-                            El sistema buscará tu huella en la red y enviará un código de verificación a tu email encriptado.
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-bold mb-2" data-i18n="recovery.nickLabel">
-                            NICK_DE_USUARIO
-                        </label>
-                        <div class="relative">
-                            <input type="text" 
-                                   id="oldNick" 
-                                   placeholder="Ej: Cypher_01" 
-                                   class="cyber-input w-full p-4 pl-12"
-                                   autocomplete="off">
-                            <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-green-500">
-                                <i class="fas fa-user-secret"></i>
-                            </div>
-                        </div>
-                        <p class="text-xs text-green-700 mt-1" data-i18n="recovery.nickHint">
-                            El nick que utilizabas en DeepIRC
-                        </p>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-bold mb-2" data-i18n="recovery.passLabel">
-                            CONTRASEÑA_MAESTRA
-                        </label>
-                        <div class="relative">
-                            <input type="password" 
-                                   id="masterPass" 
-                                   placeholder="••••••••••••" 
-                                   class="cyber-input w-full p-4 pl-12"
-                                   autocomplete="off">
-                            <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-green-500">
-                                <i class="fas fa-key"></i>
-                            </div>
-                            <button type="button" 
-                                    class="absolute right-4 top-1/2 transform -translate-y-1/2 text-green-700 hover:text-green-400"
-                                    onclick="togglePassword()">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                        <p class="text-xs text-green-700 mt-1" data-i18n="recovery.passHint">
-                            La contraseña que estableciste durante el registro inicial
-                        </p>
-                    </div>
-                    
-                    <div class="pt-4 border-t border-green-900/30">
-                        <button onclick="startRecovery()" 
-                                class="cyber-button w-full py-4">
-                            <i class="fas fa-search mr-2"></i>
-                            <span data-i18n="recovery.searchButton">BUSCAR HUELLA EN LA RED</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Paso 2: Verificación por email -->
-            <div id="step2" class="cyber-card p-8 mb-8 hidden">
-                <div class="flex items-start mb-6">
-                    <div class="text-yellow-400 mr-4">
-                        <i class="fas fa-envelope text-3xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold mb-2" data-i18n="recovery.emailTitle">VERIFICACIÓN POR EMAIL</h3>
-                        <p class="text-sm text-green-300/70" data-i18n="recovery.emailDesc">
-                            Se ha enviado un código de verificación al email asociado a tu cuenta.
-                            Revisa tu bandeja de entrada (y la carpeta de spam) e introduce el código a continuación.
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-bold mb-2" data-i18n="recovery.codeLabel">
-                            CÓDIGO DE VERIFICACIÓN
-                        </label>
-                        <div class="relative">
-                            <input type="text" 
-                                   id="verifyCode" 
-                                   placeholder="EJ: A1B2-C3D4-E5F6" 
-                                   class="cyber-input w-full p-4 pl-12 text-center tracking-widest text-lg"
-                                   maxlength="14"
-                                   autocomplete="off">
-                            <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-yellow-500">
-                                <i class="fas fa-shield-alt"></i>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center mt-2">
-                            <p class="text-xs text-green-700" data-i18n="recovery.codeHint">
-                                Código de 6 caracteres enviado por email
-                            </p>
-                            <button onclick="resendCode()" 
-                                    class="text-xs text-green-500 hover:text-green-300 flex items-center">
-                                <i class="fas fa-redo mr-1"></i>
-                                <span data-i18n="recovery.resend">REENVIAR CÓDIGO</span>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Contador de tiempo -->
-                    <div class="text-center py-4">
-                        <div class="inline-flex items-center space-x-2">
-                            <i class="fas fa-clock text-yellow-500"></i>
-                            <span class="text-sm" data-i18n="recovery.codeExpires">EL CÓDIGO CADUCA EN:</span>
-                            <span id="countdown" class="font-bold text-xl text-yellow-400">05:00</span>
-                        </div>
-                    </div>
-                    
-                    <div class="pt-4 border-t border-green-900/30">
-                        <button onclick="confirmRecovery()" 
-                                class="cyber-button w-full py-4 bg-yellow-600 border-yellow-500 hover:bg-yellow-700">
-                            <i class="fas fa-check-double mr-2"></i>
-                            <span data-i18n="recovery.confirmButton">VERIFICAR Y CONTINUAR</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Paso 3: Vinculación de nuevo dispositivo -->
-            <div id="step3" class="cyber-card p-8 mb-8 hidden">
-                <div class="flex items-start mb-6">
-                    <div class="text-green-400 mr-4">
-                        <i class="fas fa-mobile-alt text-3xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold mb-2" data-i18n="recovery.deviceTitle">VINCULAR NUEVO DISPOSITIVO</h3>
-                        <p class="text-sm text-green-300/70" data-i18n="recovery.deviceDesc">
-                            ¡Identidad verificada con éxito! Ahora puedes vincular tu nuevo dispositivo.
-                            Copia el token generado o escanea el código QR desde la aplicación DeepIRC.
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="space-y-6">
-                    <!-- Token generado -->
-                    <div>
-                        <label class="block text-sm font-bold mb-2" data-i18n="recovery.tokenLabel">
-                            TOKEN DE VINCULACIÓN
-                        </label>
-                        <div class="relative">
-                            <input type="text" 
-                                   id="recoveryToken" 
-                                   readonly
-                                   class="cyber-input w-full p-4 font-mono text-center bg-green-950/30 cursor-pointer"
-                                   onclick="copyToken()">
-                            <div class="absolute right-4 top-1/2 transform -translate-y-1/2">
-                                <button onclick="copyToken()" 
-                                        class="text-green-500 hover:text-green-300">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <p class="text-xs text-green-700 mt-2" data-i18n="recovery.tokenHint">
-                            Copia este token y pégalo en la aplicación DeepIRC > Vinculación
-                        </p>
-                    </div>
-                    
-                    <!-- QR Code -->
-                    <div class="text-center">
-                        <div class="inline-block p-4 bg-white rounded-lg">
-                            <div id="qrcode" class="w-48 h-48 mx-auto"></div>
-                        </div>
-                        <p class="text-xs text-green-700 mt-2" data-i18n="recovery.qrHint">
-                            Escanea este código QR desde la aplicación móvil
-                        </p>
-                    </div>
-                    
-                    <!-- Instrucciones -->
-                    <div class="cyber-info p-4">
-                        <h4 class="font-bold mb-3" data-i18n="recovery.instructionsTitle">INSTRUCCIONES:</h4>
-                        <ol class="text-sm space-y-2">
-                            <li class="flex items-start">
-                                <span class="font-bold mr-2">1.</span>
-                                <span data-i18n="recovery.instruction1">Abre la aplicación DeepIRC en tu nuevo dispositivo</span>
-                            </li>
-                            <li class="flex items-start">
-                                <span class="font-bold mr-2">2.</span>
-                                <span data-i18n="recovery.instruction2">Ve a Configuración > Recuperar Cuenta</span>
-                            </li>
-                            <li class="flex items-start">
-                                <span class="font-bold mr-2">3.</span>
-                                <span data-i18n="recovery.instruction3">Introduce el token o escanea el código QR</span>
-                            </li>
-                            <li class="flex items-start">
-                                <span class="font-bold mr-2">4.</span>
-                                <span data-i18n="recovery.instruction4">Tu identidad se transferirá automáticamente</span>
-                            </li>
-                        </ol>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4 pt-4 border-t border-green-900/30">
-                        <button onclick="restartRecovery()" 
-                                class="cyber-button bg-green-900/30 border-green-800 hover:bg-green-900/50">
-                            <i class="fas fa-redo mr-2"></i>
-                            <span data-i18n="recovery.restartButton">NUEVA RECUPERACIÓN</span>
-                        </button>
-                        <a href="index.html" 
-                           class="cyber-button text-center">
-                            <i class="fas fa-home mr-2"></i>
-                            <span data-i18n="recovery.homeButton">VOLVER AL INICIO</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Mensaje de estado -->
-            <div id="statusMsg" class="cyber-status p-4 mb-8 hidden">
-                <div class="flex items-center">
-                    <i class="fas fa-info-circle mr-3"></i>
-                    <span data-i18n="recovery.awaiting">ESPERANDO VERIFICACIÓN...</span>
-                </div>
-            </div>
-            
-            <!-- Información de seguridad -->
-            <div class="cyber-card p-6 mb-8 border-yellow-900/50">
-                <div class="flex items-start">
-                    <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
-                    <div>
-                        <h4 class="font-bold mb-2 text-yellow-400" data-i18n="recovery.securityTitle">IMPORTANTE: SEGURIDAD</h4>
-                        <ul class="text-sm text-green-300/70 space-y-2">
-                            <li data-i18n="recovery.security1">• Este proceso solo puede realizarse una vez cada 24 horas por cuenta</li>
-                            <li data-i18n="recovery.security2">• Los tokens de recuperación expiran después de 15 minutos</li>
-                            <li data-i18n="recovery.security3">• Notificaremos a todos los dispositivos vinculados sobre esta recuperación</li>
-                            <li data-i18n="recovery.security4">• Si no reconoces esta actividad, contacta con soporte inmediatamente</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Preguntas frecuentes -->
-            <div class="cyber-card p-6">
-                <h4 class="font-bold mb-4" data-i18n="recovery.faqTitle">PREGUNTAS FRECUENTES</h4>
-                <div class="space-y-4">
-                    <div>
-                        <h5 class="font-bold text-sm mb-1" data-i18n="recovery.faq1q">¿No recibes el email de verificación?</h5>
-                        <p class="text-xs text-green-300/70" data-i18n="recovery.faq1a">Revisa tu carpeta de spam. Si aún no lo encuentras, espera 5 minutos y utiliza la opción 'Reenviar código'.</p>
-                    </div>
-                    <div>
-                        <h5 class="font-bold text-sm mb-1" data-i18n="recovery.faq2q">¿Olvidaste tu contraseña maestra?</h5>
-                        <p class="text-xs text-green-300/70" data-i18n="recovery.faq2a">Contacta con soporte a través de support@deepirc.net con la mayor información posible sobre tu cuenta.</p>
-                    </div>
-                    <div>
-                        <h5 class="font-bold text-sm mb-1" data-i18n="recovery.faq3q">¿El token no funciona en la app?</h5>
-                        <p class="text-xs text-green-300/70" data-i18n="recovery.faq3a">Asegúrate de que la aplicación esté actualizada a la última versión y que tengas conexión a internet.</p>
-                    </div>
-                </div>
-            </div>
-            
-        </main>
-        
         <!-- Footer -->
-        <footer class="mt-12 pt-8 border-t border-green-900/30 text-center text-green-700 text-sm">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="mb-4 md:mb-0">
-                    <span data-i18n="footer.copyright">© 2024 DeepIRC Project. Todos los derechos reservados.</span>
-                    <span class="mx-2">|</span>
-                    <span data-i18n="recovery.footer.encrypted">CANAL CIFRADO: AES-256-GCM</span>
-                </div>
-                
-                <div class="flex space-x-6">
-                    <a href="index.html#ayuda" class="hover:text-green-400 transition-colors" data-i18n="footer.help">
-                        Ayuda
-                    </a>
-                    <a href="mailto:support@deepirc.net" class="hover:text-green-400 transition-colors">
-                        <i class="fas fa-life-ring mr-1"></i>
-                        <span data-i18n="recovery.footer.support">Soporte</span>
-                    </a>
-                </div>
-            </div>
-            
-            <div class="mt-4 text-green-800">
-                <span data-i18n="recovery.footer.disclaimer">
-                    Sistema de recuperación protegido por el Pacto de Honor DeepIRC. Todas las solicitudes son auditadas.
-                </span>
-            </div>
+        <footer class="mt-8 text-center text-green-700 text-xs">
+            <p>Sistema de recuperación protegido por el Pacto de Honor DeepIRC</p>
+            <p class="mt-1">© 2024 DeepIRC Project</p>
         </footer>
         
-    </div> <!-- Fin del contenedor principal -->
+    </div>
     
     <!-- Scripts -->
     <script src="translations.js"></script>
-    <script src="recovery-script.js"></script>
+    <script>
+        // Script básico para recuperación
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRecoveryPage();
+        });
+        
+        function loadRecoveryPage() {
+            const stepsContainer = document.getElementById('recoverySteps');
+            
+            stepsContainer.innerHTML = `
+                <div class="space-y-6">
+                    <!-- Paso 1: Email -->
+                    <div>
+                        <h3 class="font-bold mb-3 text-green-300">1. VERIFICACIÓN POR EMAIL</h3>
+                        <p class="text-sm text-green-300/70 mb-4">
+                            Introduce el email asociado a tu cuenta para recibir un enlace de recuperación.
+                        </p>
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <input type="email" 
+                                   id="recoveryEmail" 
+                                   placeholder="tu@email.com" 
+                                   class="cyber-input flex-1 p-3">
+                            <button onclick="sendRecoveryEmail()" class="cyber-button px-6 py-3">
+                                <i class="fas fa-paper-plane mr-2"></i>
+                                ENVIAR ENLACE
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Paso 2: Información adicional -->
+                    <div class="mt-8">
+                        <h3 class="font-bold mb-3 text-green-300">2. INFORMACIÓN ADICIONAL (OPCIONAL)</h3>
+                        <p class="text-sm text-green-300/70 mb-4">
+                            Proporciona información adicional para acelerar el proceso.
+                        </p>
+                        <div class="space-y-4">
+                            <input type="text" 
+                                   id="recoveryNick" 
+                                   placeholder="Tu nick en DeepIRC" 
+                                   class="cyber-input w-full p-3">
+                            <input type="text" 
+                                   id="recoveryDevice" 
+                                   placeholder="Modelo de dispositivo (opcional)" 
+                                   class="cyber-input w-full p-3">
+                        </div>
+                    </div>
+                    
+                    <!-- Advertencia -->
+                    <div class="mt-8 p-4 bg-yellow-900/20 border border-yellow-700/30 rounded">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                            <div>
+                                <p class="text-sm text-yellow-300 font-bold mb-1">IMPORTANTE</p>
+                                <p class="text-xs text-yellow-300/70">
+                                    • El enlace de recuperación expira en 24 horas<br>
+                                    • Solo se puede solicitar una recuperación cada 48 horas<br>
+                                    • Si no recibes el email, revisa la carpeta de spam
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Contacto -->
+                    <div class="mt-6">
+                        <p class="text-sm text-green-300/70">
+                            ¿Problemas con la recuperación? Contacta a 
+                            <a href="mailto:support@deepirc.net" class="text-green-400 hover:text-green-300">
+                                support@deepirc.net
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function sendRecoveryEmail() {
+            const email = document.getElementById('recoveryEmail').value;
+            const statusDiv = document.getElementById('recoveryStatus');
+            const statusText = document.getElementById('statusText');
+            
+            if (!email || !email.includes('@')) {
+                alert('Por favor, introduce un email válido');
+                return;
+            }
+            
+            // Mostrar estado
+            statusDiv.classList.remove('hidden');
+            statusText.textContent = 'ENVIANDO ENLACE DE RECUPERACIÓN...';
+            
+            // Simular envío
+            setTimeout(() => {
+                statusText.innerHTML = `
+                    <span class="text-green-400">
+                        <i class="fas fa-check mr-2"></i>
+                        ENLACE ENVIADO A ${email}
+                    </span>
+                    <p class="text-sm mt-2 text-green-300/70">
+                        Revisa tu bandeja de entrada y sigue las instrucciones.
+                    </p>
+                `;
+                
+                // Mostrar mensaje de éxito
+                setTimeout(() => {
+                    const successMsg = document.createElement('div');
+                    successMsg.className = 'cyber-status p-4 mt-4 bg-green-900/20';
+                    successMsg.innerHTML = `
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-400 mr-3"></i>
+                            <div>
+                                <strong>PROCESO INICIADO</strong>
+                                <p class="text-sm mt-1">
+                                    Si el email existe en nuestro sistema, recibirás instrucciones en minutos.
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    const stepsContainer = document.getElementById('recoverySteps');
+                    stepsContainer.appendChild(successMsg);
+                }, 500);
+            }, 2000);
+        }
+    </script>
     
 </body>
 </html>

@@ -1,10 +1,533 @@
-// Configuración y variables globales para recuperación
-const recoveryConfig = {
-    COUNTDOWN_TIME: 300, // 5 minutos en segundos
-    TOKEN_LENGTH: 16,
-    API_BASE_URL: 'https://bbbqjzjaivzrywwkczry.supabase.co/functions/v1',
-    STORAGE_KEY: 'deepirc_recovery_state'
+// Configuración y variables globales
+const config = {
+    SUPABASE_URL: 'https://bbbqjzjaivzrywwkczry.supabase.co',
+    SUPABASE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiYnFqemphaXZ6cnl3d2tjenJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzMjkwMzAsImV4cCI6MjA4MTkwNTAzMH0.6bMDVnoOhiigahZOJU7e59Nn6q95Kop4U4h9iwEtAhQ',
+    MASTER_KEY: "DEEP_DRTHANDS_2025",
+    VERSION: "2.0.1"
 };
+
+// Estado de la aplicación
+const appState = {
+    currentLang: 'es',
+    currentSection: 'landing',
+    isAdmin: false,
+    userData: null,
+    pactAccepted: false
+};
+
+// Inicialización cuando el DOM está listo
+document.addEventListener('DOMContentLoaded', function() {
+    initializeApp();
+    setupEventListeners();
+    createMatrixEffect();
+});
+
+// Inicialización de la aplicación
+function initializeApp() {
+    // Determinar idioma
+    const savedLang = localStorage.getItem('deepirc_lang');
+    const browserLang = navigator.language.split('-')[0];
+    appState.currentLang = savedLang || (translations[browserLang] ? browserLang : 'es');
+    
+    // Aplicar idioma
+    applyLanguage(appState.currentLang);
+    
+    // Cargar parámetros de URL
+    loadUrlParams();
+    
+    // Configurar animación de texto
+    setupTypingAnimation();
+    
+    // Inicializar contenido dinámico
+    loadDynamicContent();
+    
+    // Actualizar estado de conexión
+    updateConnectionStatus();
+    
+    // Verificar si ya se aceptó el pacto
+    checkPactStatus();
+    
+    // Configurar navegación
+    setupNavigation();
+}
+
+// Configurar navegación
+function setupNavigation() {
+    // Navegación por hash en URL
+    if (window.location.hash) {
+        const hash = window.location.hash.substring(1);
+        const validSections = ['landing', 'help', 'linking', 'contract', 'admin', 'recovery', 'downloads'];
+        
+        if (validSections.includes(hash)) {
+            setTimeout(() => {
+                showSection(hash);
+            }, 100);
+        }
+    }
+}
+
+// Configurar event listeners
+function setupEventListeners() {
+    // Selector de idioma
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const lang = this.dataset.lang;
+            changeLanguage(lang);
+        });
+    });
+    
+    // Navegación
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const section = this.dataset.section;
+            showSection(section);
+            
+            // Actualizar URL
+            history.pushState(null, '', `#${section}`);
+        });
+    });
+    
+    // Auto-rellenar token con Enter
+    document.getElementById('accessCode')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            handleAccess();
+        }
+    });
+    
+    // Pacto checkbox
+    document.getElementById('acceptPact')?.addEventListener('change', function() {
+        updatePactStatus(this.checked);
+    });
+    
+    // Botón de descarga
+    document.getElementById('downloadApk')?.addEventListener('click', function(e) {
+        downloadAPK();
+    });
+    
+    // Manejar navegación del historial
+    window.addEventListener('popstate', function() {
+        if (window.location.hash) {
+            const section = window.location.hash.substring(1);
+            showSection(section);
+        }
+    });
+}
+
+// Función principal de acceso
+async function handleAccess() {
+    const tokenInput = document.getElementById('accessCode');
+    const code = tokenInput.value.trim();
+    const status = document.getElementById('statusMsg');
+    const isAccepted = document.getElementById('acceptPact')?.checked || appState.pactAccepted;
+    const urlParams = new URLSearchParams(window.location.search);
+    const lang = appState.currentLang;
+
+    // Verificar pacto
+    if (!isAccepted) {
+        status.innerHTML = `<i class="fas fa-exclamation-triangle mr-2"></i>
+                           <span data-i18n="status.pactError">ERROR: Debes aceptar el Pacto de Honor para proceder.</span>`;
+        applyLanguage(lang);
+        status.style.color = "#ef4444";
+        
+        // Resaltar el pacto
+        highlightPactSection();
+        return;
+    }
+
+    // Verificar clave maestra (root)
+    if (code === config.MASTER_KEY) {
+        appState.isAdmin = true;
+        
+        // Mostrar panel de admin y enlace de navegación
+        const adminNav = document.getElementById('adminNav');
+        if (adminNav) {
+            adminNav.style.display = 'flex';
+        }
+        
+        showSection('admin');
+        
+        // Actualizar estado
+        status.innerHTML = `<i class="fas fa-shield-alt mr-2"></i>
+                           <span data-i18n="status.rootAccess">ACCESO ROOT CONCEDIDO. BIENVENIDO, OPERADOR.</span>`;
+        status.style.color = "#00FF41";
+        
+        // Cargar datos de admin
+        loadAdminData();
+        
+        // Limpiar input
+        tokenInput.value = "";
+        return;
+    }
+
+    // Procesar token normal
+    if (code.length >= 8) {
+        status.innerHTML = `<i class="fas fa-sync-alt animate-spin mr-2"></i>
+                           <span data-i18n="status.syncing">SINCRONIZANDO CON LA RED DEEP...</span>`;
+        status.style.color = "#00FF41";
+        applyLanguage(lang);
+
+        try {
+            const _supabase = supabase.createClient(config.SUPABASE_URL, config.SUPABASE_KEY);
+            
+            const { data, error } = await _supabase
+                .from('device_registrations')
+                .upsert({ 
+                    device_hash: code, 
+                    nick: urlParams.get('nick') || 'Anon',
+                    email: urlParams.get('email') || 'Anon',
+                    is_premium: (urlParams.get('plan') === 'premium'),
+                    pacto_aceptado: true,
+                    created_at: new Date().toISOString(),
+                    last_access: new Date().toISOString()
+                });
+
+            if (error) {
+                console.error("Supabase Error:", error);
+                status.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>
+                                   ERROR DE RED: ${error.message}`;
+                status.style.color = "#ef4444";
+            } else {
+                console.log("Success:", data);
+                status.innerHTML = `<i class="fas fa-check-circle mr-2"></i>
+                                   <span data-i18n="status.linked">VINCULACIÓN EXITOSA. Puedes volver a la App.</span>`;
+                status.style.color = "#00FF41";
+                applyLanguage(lang);
+                
+                // Mostrar sección del contrato (ya aceptado)
+                setTimeout(() => {
+                    showSection('contract');
+                    
+                    // Mostrar mensaje de éxito
+                    const contractSection = document.getElementById('contract');
+                    const successMessage = document.createElement('div');
+                    successMessage.className = 'cyber-status p-4 mb-4 bg-green-900/20';
+                    successMessage.innerHTML = `
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-400 mr-3"></i>
+                            <span>PACTO YA ACEPTADO Y CUENTA VINCULADA</span>
+                        </div>
+                    `;
+                    contractSection.querySelector('.cyber-card').prepend(successMessage);
+                }, 1000);
+            }
+        } catch (err) {
+            console.error("Crashed:", err);
+            status.innerHTML = `<i class="fas fa-server mr-2"></i>
+                               ERROR CRÍTICO: No se pudo contactar con el servidor.`;
+            status.style.color = "#ef4444";
+        }
+    } else {
+        status.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>
+                           <span data-i18n="status.invalidToken">ERROR: El token no es válido o está mal formateado.</span>`;
+        status.style.color = "#ef4444";
+        applyLanguage(lang);
+    }
+}
+
+// Mostrar sección específica
+function showSection(sectionId) {
+    // Ocultar todas las secciones
+    document.querySelectorAll('.section-content').forEach(section => {
+        section.classList.remove('active');
+    });
+    
+    // Desactivar todos los enlaces de navegación
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+    });
+    
+    // Mostrar sección seleccionada
+    const targetSection = document.getElementById(sectionId);
+    if (targetSection) {
+        targetSection.classList.add('active');
+        
+        // Activar enlace correspondiente
+        const correspondingLink = document.querySelector(`.nav-link[data-section="${sectionId}"]`);
+        if (correspondingLink) {
+            correspondingLink.classList.add('active');
+        }
+        
+        // Actualizar estado
+        appState.currentSection = sectionId;
+        
+        // Scroll suave a la sección
+        setTimeout(() => {
+            targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
+        
+        // Si es la sección de descargas, cargar información
+        if (sectionId === 'downloads') {
+            loadDownloadsInfo();
+        }
+    }
+}
+
+// Función para descargar APK
+function downloadAPK() {
+    // URL del APK (cambiar por la real)
+    const apkUrl = 'https://deepirc.net/downloads/DeepIRC_v2.0.1.apk';
+    const sha256Hash = 'a1b2c3d4e5f678901234567890abcdef1234567890abcdef1234567890abcd';
+    
+    // Mostrar información de seguridad
+    const downloadInfo = `
+        ⚠️ VERIFICACIÓN DE SEGURIDAD REQUERIDA ⚠️
+        
+        Nombre: DeepIRC_v2.0.1.apk
+        SHA-256: ${sha256Hash}
+        Tamaño: 12.4 MB
+        
+        ANTES DE INSTALAR:
+        1. Verifica la firma SHA-256
+        2. Habilita "Fuentes desconocidas"
+        3. Escanea con antivirus
+        
+        ¿Continuar con la descarga?
+    `;
+    
+    if (confirm(downloadInfo)) {
+        // Crear enlace temporal para descarga
+        const downloadLink = document.createElement('a');
+        downloadLink.href = apkUrl;
+        downloadLink.download = 'DeepIRC_v2.0.1.apk';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        
+        // Mostrar mensaje de éxito
+        const status = document.getElementById('downloadStatus');
+        if (status) {
+            status.innerHTML = `
+                <div class="cyber-status p-4 mt-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-download text-green-400 mr-3"></i>
+                        <div>
+                            <strong>DESCARGA INICIADA</strong>
+                            <p class="text-sm mt-1">Verifica la firma SHA-256 antes de instalar.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+}
+
+// Cargar información de descargas
+function loadDownloadsInfo() {
+    const downloadsSection = document.getElementById('downloads');
+    if (!downloadsSection) return;
+    
+    downloadsSection.innerHTML = `
+        <div class="cyber-card p-6 md:p-8">
+            <div class="flex items-center mb-6">
+                <i class="fas fa-download text-green-400 text-2xl md:text-3xl mr-4"></i>
+                <h3 class="text-xl md:text-2xl font-bold section-title">
+                    <span data-i18n="downloads.title">>> DESCARGAR_DEEPIRC</span>
+                </h3>
+            </div>
+            
+            <p class="mb-6 text-green-300/80 text-sm md:text-base" data-i18n="downloads.description">
+                Obten la última versión de DeepIRC para tu dispositivo.
+            </p>
+            
+            <!-- Android APK -->
+            <div class="cyber-card p-4 md:p-6 mb-6 border-green-500/30">
+                <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                    <div>
+                        <h4 class="text-lg md:text-xl font-bold text-green-300 mb-2" data-i18n="downloads.android">
+                            ANDROID (APK)
+                        </h4>
+                        <div class="flex flex-wrap gap-4 text-sm text-green-400/70">
+                            <span data-i18n="downloads.version">Versión 2.0.1</span>
+                            <span data-i18n="downloads.size">Tamaño: 12.4 MB</span>
+                            <span data-i18n="downloads.security">Verificado: SHA-256</span>
+                        </div>
+                    </div>
+                    <button id="downloadApk" class="cyber-button mt-4 md:mt-0 px-6 py-3">
+                        <i class="fas fa-download mr-2"></i>
+                        <span data-i18n="downloads.button">DESCARGAR APK</span>
+                    </button>
+                </div>
+                
+                <div id="downloadStatus"></div>
+                
+                <!-- Instrucciones -->
+                <div class="mt-6 pt-4 border-t border-green-900/30">
+                    <h5 class="font-bold mb-3 text-green-300" data-i18n="downloads.instructions">
+                        INSTRUCCIONES DE INSTALACIÓN
+                    </h5>
+                    <ol class="space-y-2 text-sm text-green-300/80">
+                        <li class="flex items-start">
+                            <span class="font-bold mr-2">1.</span>
+                            <span data-i18n="downloads.step1">Permite instalación desde fuentes desconocidas</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="font-bold mr-2">2.</span>
+                            <span data-i18n="downloads.step2">Descarga e instala el archivo APK</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="font-bold mr-2">3.</span>
+                            <span data-i18n="downloads.step3">Inicia DeepIRC y acepta el Pacto</span>
+                        </li>
+                    </ol>
+                </div>
+                
+                <!-- Advertencia de seguridad -->
+                <div class="mt-4 p-3 bg-yellow-900/20 border border-yellow-700/30 rounded">
+                    <div class="flex items-start">
+                        <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                        <div>
+                            <p class="text-sm text-yellow-300" data-i18n="downloads.warning">
+                                ⚠️ IMPORTANTE: Siempre verifica la firma SHA-256
+                            </p>
+                            <p class="text-xs text-yellow-300/70 mt-1" data-i18n="downloads.support">
+                                Soporte: support@deepirc.net
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Patreon -->
+            <div class="cyber-card p-4 md:p-6 border-purple-500/30">
+                <div class="flex items-center mb-4">
+                    <i class="fab fa-patreon text-purple-400 text-2xl mr-3"></i>
+                    <h4 class="text-lg md:text-xl font-bold text-purple-300" data-i18n="patreon.title">
+                        APOYAR_DEEPIRC
+                    </h4>
+                </div>
+                
+                <p class="mb-4 text-purple-300/80 text-sm md:text-base" data-i18n="patreon.description">
+                    Ayúdanos a mantener y mejorar DeepIRC.
+                </p>
+                
+                <a href="https://patreon.com/deepirc" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   class="cyber-button bg-purple-600 border-purple-500 hover:bg-purple-700 inline-flex items-center mb-6">
+                    <i class="fab fa-patreon mr-2"></i>
+                    <span data-i18n="patreon.button">APOYAR EN PATREON</span>
+                </a>
+                
+                <div class="mt-4 pt-4 border-t border-purple-900/30">
+                    <h5 class="font-bold mb-3 text-purple-300" data-i18n="patreon.perks">
+                        VENTAJAS PATREON
+                    </h5>
+                    <ul class="space-y-2 text-sm text-purple-300/80">
+                        <li class="flex items-start">
+                            <i class="fas fa-star text-purple-400 mt-1 mr-2"></i>
+                            <span data-i18n="patreon.perk1">• Acceso anticipado a nuevas características</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-headset text-purple-400 mt-1 mr-2"></i>
+                            <span data-i18n="patreon.perk2">• Soporte prioritario</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-award text-purple-400 mt-1 mr-2"></i>
+                            <span data-i18n="patreon.perk3">• Insignia exclusiva en la app</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-crown text-purple-400 mt-1 mr-2"></i>
+                            <span data-i18n="patreon.perk4">• Acceso al canal VIP en IRC</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Re-aplicar idioma
+    applyLanguage(appState.currentLang);
+    
+    // Re-configurar event listener para el botón de descarga
+    document.getElementById('downloadApk')?.addEventListener('click', downloadAPK);
+}
+
+// Actualizar estado del pacto
+function updatePactStatus(isAccepted) {
+    appState.pactAccepted = isAccepted;
+    
+    if (isAccepted) {
+        localStorage.setItem('deepirc_pact_accepted', 'true');
+        
+        // Quitar indicador de requerido
+        const contractNav = document.querySelector('.nav-link[data-section="contract"] .bg-red-500');
+        if (contractNav) {
+            contractNav.remove();
+        }
+        
+        // Quitar botón flotante en móvil
+        const quickAccessBtn = document.getElementById('contractQuickAccess');
+        if (quickAccessBtn) {
+            quickAccessBtn.style.display = 'none';
+        }
+    } else {
+        localStorage.removeItem('deepirc_pact_accepted');
+    }
+}
+
+// Verificar estado del pacto
+function checkPactStatus() {
+    const pactAccepted = localStorage.getItem('deepirc_pact_accepted');
+    const pactCheckbox = document.getElementById('acceptPact');
+    
+    if (pactAccepted && pactCheckbox) {
+        pactCheckbox.checked = true;
+        appState.pactAccepted = true;
+        
+        // Quitar indicador de requerido
+        const contractNav = document.querySelector('.nav-link[data-section="contract"] .bg-red-500');
+        if (contractNav) {
+            contractNav.remove();
+        }
+        
+        // Quitar botón flotante en móvil
+        const quickAccessBtn = document.getElementById('contractQuickAccess');
+        if (quickAccessBtn) {
+            quickAccessBtn.style.display = 'none';
+        }
+    }
+}
+
+// Resaltar sección del pacto
+function highlightPactSection() {
+    showSection('contract');
+    
+    // Resaltar el checkbox
+    setTimeout(() => {
+        const pactCheckbox = document.getElementById('acceptPact');
+        const pactContainer = document.querySelector('.pact-checkbox');
+        
+        if (pactContainer) {
+            // Añadir clase de highlight
+            pactContainer.classList.add('highlight-pact');
+            
+            // Scroll al checkbox
+            pactContainer.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            });
+            
+            // Parpadear el checkbox
+            let blinkCount = 0;
+            const blinkInterval = setInterval(() => {
+                pactContainer.classList.toggle('highlight-pact-blink');
+                
+                blinkCount++;
+                if (blinkCount >= 6) { // 3 parpadeos completos
+                    clearInterval(blinkInterval);
+                    pactContainer.classList.remove('highlight-pact-blink');
+                    pactContainer.classList.add('highlight-pact');
+                    
+                    // Quitar highlight después de 2 segundos
+                    setTimeout(() => {
+                        pactContainer.classList.remove('highlight-pact');
+                    }, 2000);
+                }
+            }, 300);
+        }
+    }, 300);
+}
 
 // Estado de la recuperación
 const recoveryState = {
@@ -15,11 +538,7 @@ const recoveryState = {
     currentLang: 'es'
 };
 
-// Inicialización cuando el DOM está listo
-document.addEventListener('DOMContentLoaded', function() {
-    initializeRecovery();
-    loadRecoveryState();
-});
+
 
 // Inicializar la página de recuperación
 function initializeRecovery() {
