@@ -65,6 +65,7 @@
     border-radius: 2px;
     color: #00FF41;
     transition: all 0.3s ease;
+    font-size: 16px !important; /* Evitar zoom en iOS */
 }
 
 .cyber-input:focus {
@@ -77,12 +78,12 @@
     color: rgba(0, 255, 65, 0.4);
 }
 
-/* Botones cyber */
+/* Botones cyber - MEJOR VISIBILIDAD */
 .cyber-button {
     background: linear-gradient(45deg, #003300, #006600);
-    border: 1px solid #00FF41;
-    color: #00FF41;
-    padding: 12px 24px;
+    border: 2px solid #00FF41 !important;
+    color: #00FF41 !important;
+    padding: 16px 24px !important;
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -90,16 +91,22 @@
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
+    font-size: 16px !important;
+    min-height: 56px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-.cyber-button:hover {
+.cyber-button:hover, .cyber-button:active {
     background: linear-gradient(45deg, #006600, #009900);
-    box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.7);
     transform: translateY(-2px);
+    color: #FFFFFF !important;
 }
 
 .cyber-button:active {
-    transform: translateY(0);
+    transform: translateY(1px);
 }
 
 .cyber-button::after {
@@ -123,11 +130,13 @@
     background: rgba(0, 40, 20, 0.5);
     border: 1px solid rgba(0, 255, 65, 0.2);
     color: rgba(0, 255, 65, 0.7);
-    padding: 4px 12px;
+    padding: 8px 12px !important;
     font-size: 12px;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
+    min-width: 44px;
+    min-height: 44px;
 }
 
 .lang-btn:hover {
@@ -141,24 +150,32 @@
     color: #00FF41;
 }
 
-/* Enlaces de navegación */
+/* Enlaces de navegación - MEJOR VISIBILIDAD */
 .nav-link {
-    color: rgba(0, 255, 65, 0.6);
+    color: rgba(0, 255, 65, 0.8);
     text-decoration: none;
-    padding: 8px 16px;
+    padding: 12px 16px !important;
     border-bottom: 2px solid transparent;
     transition: all 0.3s ease;
+    font-size: 14px;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    margin: 4px;
+    border-radius: 4px;
 }
 
 .nav-link:hover {
     color: #00FF41;
     border-bottom: 2px solid #00FF41;
+    background: rgba(0, 255, 65, 0.05);
 }
 
 .nav-link.active {
     color: #00FF41;
     border-bottom: 2px solid #00FF41;
-    background: rgba(0, 255, 65, 0.05);
+    background: rgba(0, 255, 65, 0.1) !important;
+    box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
 }
 
 /* Secciones */
@@ -180,6 +197,7 @@
 .section-title {
     position: relative;
     padding-left: 20px;
+    font-size: 1.5rem !important;
 }
 
 .section-title::before {
@@ -195,17 +213,21 @@
     background: rgba(0, 30, 15, 0.3);
     border-left: 3px solid #00FF41;
     border-radius: 2px;
+    padding: 16px !important;
+    margin: 16px 0;
 }
 
 .cyber-info {
     background: rgba(0, 40, 20, 0.2);
     border: 1px solid rgba(0, 255, 65, 0.1);
     border-radius: 4px;
+    padding: 16px !important;
 }
 
 /* Tabla cyber */
 .cyber-table {
     background: rgba(0, 10, 5, 0.2);
+    font-size: 12px;
 }
 
 .cyber-table th {
@@ -214,11 +236,13 @@
     text-align: left;
     font-weight: bold;
     border-bottom: 2px solid rgba(0, 255, 65, 0.3);
+    font-size: 11px;
 }
 
 .cyber-table td {
     padding: 12px;
     border-bottom: 1px solid rgba(0, 255, 65, 0.1);
+    font-size: 11px;
 }
 
 .cyber-table tr:hover {
@@ -289,32 +313,65 @@
     100% { clip-path: inset(0 0 0 0); }
 }
 
-/* Pact checkbox personalizado */
+/* Pact checkbox personalizado - MUCHO MÁS VISIBLE */
+.pact-checkbox {
+    background: rgba(0, 20, 10, 0.5) !important;
+    border: 2px solid rgba(0, 255, 65, 0.4) !important;
+    border-radius: 8px !important;
+    padding: 20px !important;
+    margin: 24px 0 !important;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: block !important;
+}
+
+.pact-checkbox:hover {
+    background: rgba(0, 40, 20, 0.7) !important;
+    border-color: #00FF41 !important;
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+}
+
 .pact-checkbox input[type="checkbox"] {
     appearance: none;
-    width: 20px;
-    height: 20px;
-    background: rgba(0, 20, 10, 0.5);
-    border: 2px solid rgba(0, 255, 65, 0.3);
-    border-radius: 3px;
+    width: 28px !important;
+    height: 28px !important;
+    background: rgba(0, 20, 10, 0.8);
+    border: 2px solid rgba(0, 255, 65, 0.6);
+    border-radius: 4px;
     cursor: pointer;
     position: relative;
+    flex-shrink: 0;
+    margin-top: 4px;
 }
 
 .pact-checkbox input[type="checkbox"]:checked {
-    background: rgba(0, 255, 65, 0.2);
+    background: rgba(0, 255, 65, 0.3);
     border-color: #00FF41;
+    box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
 }
 
 .pact-checkbox input[type="checkbox"]:checked::after {
     content: "✓";
     position: absolute;
     color: #00FF41;
-    font-size: 16px;
+    font-size: 20px;
     font-weight: bold;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+.pact-checkbox span {
+    color: #00FF41 !important;
+    font-size: 16px !important;
+    line-height: 1.5;
+}
+
+.pact-checkbox .font-bold {
+    color: #FFFFFF !important;
+    font-size: 18px !important;
+    margin-bottom: 8px;
+    display: block;
 }
 
 /* Botón pequeño cyber */
@@ -322,10 +379,12 @@
     background: rgba(0, 30, 15, 0.5);
     border: 1px solid rgba(0, 255, 65, 0.3);
     color: #00FF41;
-    padding: 6px 12px;
-    font-size: 12px;
+    padding: 10px 16px !important;
+    font-size: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
+    min-height: 44px;
+    min-width: 44px;
 }
 
 .cyber-button-small:hover {
@@ -333,26 +392,209 @@
     border-color: #00FF41;
 }
 
-/* Responsive */
+/* Contenedor principal mejorado para móvil */
+.container {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    max-width: 100% !important;
+}
+
+/* Mejoras específicas para móvil */
 @media (max-width: 768px) {
-    .section-title {
-        font-size: 1.5rem;
+    /* Header */
+    header {
+        padding-bottom: 16px !important;
+        margin-bottom: 16px !important;
+    }
+    
+    .glitch {
+        font-size: 1.5rem !important;
+    }
+    
+    /* Navegación mejorada */
+    nav {
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 12px;
+        -webkit-overflow-scrolling: touch;
     }
     
     .nav-link {
-        padding: 6px 10px;
-        font-size: 14px;
+        padding: 10px 12px !important;
+        font-size: 13px;
+        margin: 2px;
     }
     
+    /* Títulos más grandes */
+    h2 {
+        font-size: 2rem !important;
+        line-height: 1.2 !important;
+    }
+    
+    h3 {
+        font-size: 1.5rem !important;
+    }
+    
+    .section-title {
+        font-size: 1.3rem !important;
+        margin-bottom: 24px !important;
+    }
+    
+    /* Grid responsive */
+    .grid {
+        gap: 12px !important;
+    }
+    
+    .md\:grid-cols-3 {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .md\:grid-cols-2 {
+        grid-template-columns: 1fr !important;
+    }
+    
+    /* Cyber cards */
+    .cyber-card {
+        padding: 20px !important;
+        margin-bottom: 16px;
+    }
+    
+    /* Inputs más grandes para touch */
+    .cyber-input {
+        padding: 16px !important;
+        font-size: 16px !important;
+        margin-bottom: 12px;
+    }
+    
+    /* Botones más grandes */
     .cyber-button {
-        padding: 10px 16px;
+        padding: 18px 24px !important;
+        font-size: 16px !important;
+        min-height: 60px;
+        width: 100%;
+        margin: 8px 0;
+    }
+    
+    /* Tabla scrollable */
+    .overflow-x-auto {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border: 1px solid rgba(0, 255, 65, 0.1);
+        border-radius: 4px;
+    }
+    
+    .cyber-table {
+        min-width: 800px;
+    }
+    
+    /* Footer */
+    footer {
+        padding-top: 24px !important;
+        font-size: 12px;
+    }
+    
+    footer .flex {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    /* Pact checkbox más prominente */
+    .pact-checkbox {
+        padding: 24px !important;
+        margin: 32px 0 !important;
+        border-width: 3px !important;
+    }
+    
+    .pact-checkbox input[type="checkbox"] {
+        width: 32px !important;
+        height: 32px !important;
+    }
+    
+    .pact-checkbox .font-bold {
+        font-size: 20px !important;
+    }
+    
+    .pact-checkbox span {
+        font-size: 14px !important;
+    }
+    
+    /* Mejor separación de secciones */
+    section {
+        margin-bottom: 40px !important;
+        padding: 16px 0 !important;
+    }
+    
+    /* Ocultar efecto terminal en móvil */
+    .terminal-effect::before {
+        display: none;
+    }
+    
+    /* Ajustar texto largo */
+    .text-lg {
+        font-size: 16px !important;
+        line-height: 1.6;
+    }
+    
+    /* Status message */
+    .cyber-status {
+        padding: 20px !important;
         font-size: 14px;
+    }
+}
+
+/* Pantallas muy pequeñas */
+@media (max-width: 480px) {
+    .text-4xl {
+        font-size: 1.75rem !important;
+    }
+    
+    .text-6xl {
+        font-size: 2rem !important;
+    }
+    
+    .glitch {
+        font-size: 1.2rem !important;
+    }
+    
+    .lang-btn {
+        padding: 6px 8px !important;
+        min-width: 40px;
+    }
+    
+    /* Navegación más compacta */
+    .nav-link {
+        padding: 8px 10px !important;
+        font-size: 12px;
+    }
+    
+    /* Botones aún más grandes para fácil touch */
+    button, .cyber-button {
+        min-height: 56px;
+        padding: 16px !important;
+    }
+}
+
+/* Tablets */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        max-width: 90% !important;
+        padding-left: 24px !important;
+        padding-right: 24px !important;
+    }
+    
+    .nav-link {
+        padding: 10px 14px !important;
+    }
+    
+    .md\:grid-cols-3 {
+        grid-template-columns: repeat(2, 1fr) !important;
     }
 }
 
 /* Scrollbar personalizada */
 ::-webkit-scrollbar {
     width: 8px;
+    height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -366,4 +608,45 @@
 
 ::-webkit-scrollbar-thumb:hover {
     background: rgba(0, 255, 65, 0.5);
+}
+
+/* Mejorar selección de texto */
+::selection {
+    background: rgba(0, 255, 65, 0.3);
+    color: #00FF41;
+}
+
+/* Prevenir zoom en inputs en iOS */
+@media screen and (max-width: 768px) {
+    input, select, textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* Touch-friendly improvements */
+button, 
+input[type="submit"], 
+input[type="button"], 
+.nav-link,
+.lang-btn {
+    -webkit-tap-highlight-color: rgba(0, 255, 65, 0.3);
+    touch-action: manipulation;
+}
+
+/* Mejorar visibilidad de focus para accesibilidad */
+.cyber-input:focus,
+.cyber-button:focus,
+.nav-link:focus {
+    outline: 2px solid #00FF41;
+    outline-offset: 2px;
+}
+
+/* Animación sutil para nuevos elementos */
+@keyframes highlight {
+    0% { background-color: rgba(0, 255, 65, 0.1); }
+    100% { background-color: transparent; }
+}
+
+.highlight {
+    animation: highlight 2s ease;
 }
