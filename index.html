@@ -1,60 +1,533 @@
-<!-- En la sección del contrato, actualizar para mejor visibilidad -->
-<section id="contract" class="section-content">
-    <div class="cyber-card p-6 md:p-8">
-        <div class="flex items-center mb-6">
-            <div class="mr-4 text-3xl text-green-400">
-                <i class="fas fa-file-contract"></i>
-            </div>
-            <div>
-                <h3 class="text-2xl md:text-3xl font-bold section-title">
-                    <span data-i18n="contract.title">>> PACTO_DE_CONFIANZA_v2.0</span>
-                </h3>
-                <p class="text-sm text-green-600 mt-1" data-i18n="contract.subtitle">
-                    REQUERIDO PARA CONTINUAR
-                </p>
-            </div>
-        </div>
+<!DOCTYPE html>
+<html lang="es" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">DeepIRC | Centro de Operaciones</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fuentes y estilos -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Meta tags para móviles -->
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body class="bg-black text-green-400 font-matrix min-h-screen overflow-x-hidden">
+    
+    <!-- Efecto Matrix de fondo -->
+    <div id="matrixBackground"></div>
+    
+    <!-- Contenedor principal con efecto de terminal -->
+    <div class="container mx-auto px-4 py-6 relative z-10 terminal-effect">
         
-        <div class="space-y-4 md:space-y-6 text-green-300/90 leading-relaxed">
-            <!-- Los párrafos del contrato se cargarán dinámicamente -->
-        </div>
-        
-        <div class="mt-8 md:mt-10 pt-6 border-t border-green-900/30">
-            <div class="pact-checkbox p-4 md:p-6">
-                <div class="flex items-start">
-                    <input type="checkbox" id="acceptPact" class="mt-1">
-                    <div class="ml-4">
-                        <span class="font-bold block mb-2 text-lg" data-i18n="contract.acceptTitle">
-                            ✅ ACEPTACIÓN DEL PACTO DE HONOR
-                        </span>
-                        <span class="text-sm md:text-base text-green-400/80 block mb-3" data-i18n="contract.acceptText">
-                            Al marcar esta casilla, confirmas que has leído, comprendido y aceptas 
-                            todos los términos del Pacto de Honor DeepIRC. Esta acción es irreversible 
-                            y constituye un acuerdo vinculante entre tú y el sistema.
-                        </span>
-                        <span class="text-xs text-green-600 block">
-                            <i class="fas fa-exclamation-triangle mr-1"></i>
-                            <span data-i18n="contract.required">Este paso es obligatorio para usar DeepIRC</span>
-                        </span>
+        <!-- Header con selector de idioma -->
+        <header class="flex flex-col md:flex-row justify-between items-center border-b border-green-900/50 pb-4 mb-8">
+            <div class="flex items-center space-x-4 mb-4 md:mb-0">
+                <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                <h1 class="text-2xl md:text-3xl font-bold tracking-wider glitch" data-text="DEEP_IRC_INFOCENTER_v2.0">
+                    DEEP_IRC_INFOCENTER_v2.0
+                </h1>
+            </div>
+            
+            <!-- Selector de idioma -->
+            <div class="flex items-center space-x-4">
+                <div class="flex space-x-2">
+                    <button class="lang-btn active" data-lang="es" title="Español">ES</button>
+                    <button class="lang-btn" data-lang="en" title="English">EN</button>
+                    <button class="lang-btn" data-lang="fr" title="Français">FR</button>
+                    <button class="lang-btn" data-lang="pt" title="Português">PT</button>
+                </div>
+                <div class="h-6 border-r border-green-900 hidden md:block"></div>
+                <div class="text-xs text-green-600 hidden md:block">
+                    <span id="connectionStatus">CONEXIÓN_SEGURA_E2EE</span>
+                    <div class="flex items-center mt-1">
+                        <div class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                        <span id="statusText">EN LÍNEA</span>
                     </div>
                 </div>
             </div>
-        </div>
+        </header>
         
-        <!-- Botón de ayuda visible -->
-        <div class="mt-6 text-center">
-            <button onclick="scrollToContractHelp()" class="cyber-button-small">
-                <i class="fas fa-question-circle mr-2"></i>
-                <span data-i18n="contract.help">¿Tienes dudas sobre el pacto?</span>
-            </button>
-        </div>
+        <!-- Navegación -->
+        <nav class="mb-8 border-b border-green-900/30 pb-4">
+            <div class="flex flex-nowrap gap-2 md:gap-4 overflow-x-auto pb-2 -mx-2 px-2">
+                <a href="#inicio" class="nav-link active flex-shrink-0" data-section="landing">
+                    <i class="fas fa-terminal mr-2"></i>
+                    <span data-i18n="nav.home">INICIO</span>
+                </a>
+                <a href="#ayuda" class="nav-link flex-shrink-0" data-section="help">
+                    <i class="fas fa-code mr-2"></i>
+                    <span data-i18n="nav.help">MANUAL</span>
+                </a>
+                <a href="#vinculacion" class="nav-link flex-shrink-0" data-section="linking">
+                    <i class="fas fa-link mr-2"></i>
+                    <span data-i18n="nav.link">VINCULAR</span>
+                </a>
+                <a href="#contrato" class="nav-link flex-shrink-0" data-section="contract">
+                    <i class="fas fa-file-contract mr-2"></i>
+                    <span data-i18n="nav.pact">PACTO</span>
+                    <span class="ml-2 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                </a>
+                <a href="#admin" class="nav-link flex-shrink-0" data-section="admin" style="display: none;" id="adminNav">
+                    <i class="fas fa-shield-alt mr-2"></i>
+                    <span data-i18n="nav.admin">ADMIN</span>
+                </a>
+                <a href="#recuperar" class="nav-link flex-shrink-0" data-section="recovery">
+                    <i class="fas fa-key mr-2"></i>
+                    <span data-i18n="nav.recovery">RECUPERAR</span>
+                </a>
+            </div>
+        </nav>
+        
+        <!-- Secciones de contenido -->
+        <main id="contentSections">
+            
+            <!-- Sección 1: Landing -->
+            <section id="landing" class="section-content active">
+                <div class="mb-8 md:mb-12">
+                    <h2 class="text-3xl md:text-6xl font-bold mb-4 md:mb-6 leading-tight">
+                        <span class="text-white">IRC SIN HUELLAS.</span><br>
+                        <span class="text-green-300 typing-animation" id="typingText"></span>
+                    </h2>
+                    <p class="text-base md:text-lg text-green-300/80 max-w-3xl mb-6 md:mb-8" data-i18n="landing.description">
+                        DeepIRC no es solo un cliente. Es un túnel hacia la red IRC con enrutamiento Tor nativo, 
+                        cifrado OTR y aislamiento total de metadatos.
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-8 md:mt-12">
+                        <div class="cyber-card p-4 md:p-6">
+                            <div class="text-2xl md:text-3xl text-green-400 mb-3 md:mb-4">
+                                <i class="fas fa-user-secret"></i>
+                            </div>
+                            <h3 class="text-lg md:text-xl font-bold mb-2 md:mb-3" data-i18n="features.anon.title">ANONIMATO TOTAL</h3>
+                            <p class="text-xs md:text-sm text-green-300/70" data-i18n="features.anon.desc">
+                                Nicks efímeros y rotación automática de identidades.
+                            </p>
+                        </div>
+                        
+                        <div class="cyber-card p-4 md:p-6">
+                            <div class="text-2xl md:text-3xl text-green-400 mb-3 md:mb-4">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <h3 class="text-lg md:text-xl font-bold mb-2 md:mb-3" data-i18n="features.encrypt.title">CIFRADO E2EE</h3>
+                            <p class="text-xs md:text-sm text-green-300/70" data-i18n="features.encrypt.desc">
+                                Cifrado de extremo a extremo con llaves temporales.
+                            </p>
+                        </div>
+                        
+                        <div class="cyber-card p-4 md:p-6">
+                            <div class="text-2xl md:text-3xl text-green-400 mb-3 md:mb-4">
+                                <i class="fas fa-ghost"></i>
+                            </div>
+                            <h3 class="text-lg md:text-xl font-bold mb-2 md:mb-3" data-i18n="features.logs.title">SIN REGISTROS</h3>
+                            <p class="text-xs md:text-sm text-green-300/70" data-i18n="features.logs.desc">
+                                Autodestrucción de logs y borrado forense automático.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Sección 2: Manual de Operaciones -->
+            <section id="help" class="section-content">
+                <div class="flex items-center mb-6 md:mb-8">
+                    <i class="fas fa-code text-green-400 text-xl md:text-2xl mr-3"></i>
+                    <h3 class="text-xl md:text-2xl font-bold section-title">
+                        <span data-i18n="help.title">>> MANUAL_DE_OPERACIONES</span>
+                    </h3>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    <!-- Las tarjetas de ayuda se llenarán con JavaScript -->
+                </div>
+            </section>
+            
+            <!-- Sección 3: Vinculación -->
+            <section id="linking" class="section-content">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-link text-green-400 text-xl md:text-2xl mr-3"></i>
+                    <h3 class="text-xl md:text-2xl font-bold section-title">
+                        <span data-i18n="linking.title">>> VINCULACIÓN_DE_CUENTA</span>
+                    </h3>
+                </div>
+                
+                <p class="mb-4 md:mb-6 text-green-300 text-sm md:text-base" data-i18n="linking.description">
+                    Introduce el código de verificación proporcionado por la aplicación para acceder 
+                    a tu panel de contrato y funciones premium.
+                </p>
+                
+                <div class="max-w-2xl mx-auto">
+                    <div class="flex flex-col md:flex-row gap-3 md:gap-4 mb-4 md:mb-6">
+                        <div class="flex-1 relative">
+                            <input type="text" 
+                                   id="accessCode" 
+                                   placeholder="TOKEN_HEX_ID" 
+                                   class="cyber-input w-full p-3 md:p-4 font-mono text-sm md:text-base"
+                                   autocomplete="off">
+                            <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500/50">
+                                <i class="fas fa-key"></i>
+                            </div>
+                        </div>
+                        <button onclick="handleAccess()" 
+                                class="cyber-button px-4 md:px-8 py-3 md:py-4 font-bold text-sm md:text-base">
+                            <i class="fas fa-bolt mr-2"></i>
+                            <span data-i18n="linking.process">PROCESAR</span>
+                        </button>
+                    </div>
+                    
+                    <div id="statusMsg" class="cyber-status p-3 md:p-4 mb-4 md:mb-6">
+                        <div class="flex items-center">
+                            <i class="fas fa-sync-alt animate-spin mr-2 md:mr-3 text-sm md:text-base"></i>
+                            <span class="text-sm md:text-base" data-i18n="linking.awaiting">ESPERANDO_TOKEN...</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Info para recuperación -->
+                    <div class="cyber-info p-3 md:p-4">
+                        <h4 class="font-bold mb-1 md:mb-2 text-sm md:text-base" data-i18n="linking.lostToken">¿PERDISTE TU TOKEN?</h4>
+                        <p class="text-xs md:text-sm text-green-300/70 mb-2" data-i18n="linking.recoveryInfo">
+                            Si has perdido tu dispositivo o token de acceso, visita la sección de recuperación.
+                        </p>
+                        <a href="#recuperar" class="text-green-400 hover:text-white text-xs md:text-sm transition-colors flex items-center">
+                            <i class="fas fa-arrow-right mr-2"></i>
+                            <span data-i18n="linking.goRecovery">IR A RECUPERACIÓN</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Sección 4: Contrato -->
+            <section id="contract" class="section-content">
+                <div class="cyber-card p-4 md:p-8">
+                    <div class="flex items-center mb-4 md:mb-6">
+                        <div class="mr-3 md:mr-4 text-2xl md:text-3xl text-green-400">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl md:text-2xl font-bold section-title">
+                                <span data-i18n="contract.title">>> PACTO_DE_CONFIANZA_v2.0</span>
+                            </h3>
+                            <p class="text-xs md:text-sm text-green-600 mt-1" data-i18n="contract.subtitle">
+                                REQUERIDO PARA CONTINUAR
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3 md:space-y-6 text-green-300/90 leading-relaxed text-sm md:text-base">
+                        <!-- Los párrafos del contrato se cargarán dinámicamente -->
+                    </div>
+                    
+                    <div class="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-green-900/30">
+                        <div class="pact-checkbox p-3 md:p-6">
+                            <div class="flex items-start">
+                                <input type="checkbox" id="acceptPact" class="mt-1">
+                                <div class="ml-3 md:ml-4">
+                                    <span class="font-bold block mb-1 md:mb-2 text-base md:text-lg" data-i18n="contract.acceptTitle">
+                                        ✅ ACEPTACIÓN DEL PACTO DE HONOR
+                                    </span>
+                                    <span class="text-xs md:text-sm text-green-400/80 block mb-2 md:mb-3" data-i18n="contract.acceptText">
+                                        Al marcar esta casilla, confirmas que has leído, comprendido y aceptas 
+                                        todos los términos del Pacto de Honor DeepIRC. Esta acción es irreversible 
+                                        y constituye un acuerdo vinculante entre tú y el sistema.
+                                    </span>
+                                    <span class="text-xs text-green-600 block">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                                        <span data-i18n="contract.required">Este paso es obligatorio para usar DeepIRC</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Botón de ayuda visible -->
+                    <div class="mt-4 md:mt-6 text-center">
+                        <button onclick="scrollToContractHelp()" class="cyber-button-small text-xs md:text-sm">
+                            <i class="fas fa-question-circle mr-2"></i>
+                            <span data-i18n="contract.help">¿Tienes dudas sobre el pacto?</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Sección 5: Panel de Admin (oculto inicialmente) -->
+            <section id="admin" class="section-content">
+                <div class="cyber-card-red p-4 md:p-8">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 md:mb-6">
+                        <div class="mb-4 md:mb-0">
+                            <h3 class="text-xl md:text-2xl font-bold text-red-400 mb-1 md:mb-2 flex items-center">
+                                <i class="fas fa-shield-alt mr-2"></i>
+                                <span data-i18n="admin.title">!! SISTEMA_ADMINISTRACIÓN_ROOT !!</span>
+                            </h3>
+                            <p class="text-xs md:text-sm text-red-400/70" data-i18n="admin.subtitle">
+                                Acceso restringido a operadores autorizados
+                            </p>
+                        </div>
+                        <div class="flex items-center space-x-2 md:space-x-4">
+                            <button onclick="syncUsers()" class="cyber-button-small text-xs md:text-sm">
+                                <i class="fas fa-sync-alt mr-1 md:mr-2"></i>
+                                <span data-i18n="admin.sync">SINCRONIZAR</span>
+                            </button>
+                            <button onclick="logoutAdmin()" class="cyber-button-small bg-red-900/30 text-xs md:text-sm">
+                                <i class="fas fa-sign-out-alt mr-1 md:mr-2"></i>
+                                <span data-i18n="admin.logout">SALIR</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto -mx-2 px-2">
+                        <table class="w-full cyber-table min-w-full">
+                            <thead>
+                                <tr>
+                                    <th class="text-xs md:text-sm" data-i18n="admin.table.uuid">UUID_APP</th>
+                                    <th class="text-xs md:text-sm" data-i18n="admin.table.nick">NICK</th>
+                                    <th class="text-xs md:text-sm hidden md:table-cell" data-i18n="admin.table.email">EMAIL</th>
+                                    <th class="text-xs md:text-sm" data-i18n="admin.table.status">ESTADO</th>
+                                    <th class="text-xs md:text-sm hidden md:table-cell" data-i18n="admin.table.lastAccess">ÚLTIMO_ACCESO</th>
+                                    <th class="text-xs md:text-sm" data-i18n="admin.table.actions">ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTable">
+                                <!-- Datos cargados dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mt-4 md:mt-6 pt-4 md:pt-6 border-t border-red-900/30">
+                        <div class="grid grid-cols-3 gap-2 md:gap-4">
+                            <div class="text-center p-2 md:p-4 bg-red-950/20 rounded">
+                                <div class="text-lg md:text-2xl font-bold text-red-400" id="totalUsers">0</div>
+                                <div class="text-xs md:text-sm text-red-400/70" data-i18n="admin.stats.total">TOTAL</div>
+                            </div>
+                            <div class="text-center p-2 md:p-4 bg-red-950/20 rounded">
+                                <div class="text-lg md:text-2xl font-bold text-green-400" id="activeUsers">0</div>
+                                <div class="text-xs md:text-sm text-red-400/70" data-i18n="admin.stats.active">ACTIVOS</div>
+                            </div>
+                            <div class="text-center p-2 md:p-4 bg-red-950/20 rounded">
+                                <div class="text-lg md:text-2xl font-bold text-yellow-400" id="premiumUsers">0</div>
+                                <div class="text-xs md:text-sm text-red-400/70" data-i18n="admin.stats.premium">PREMIUM</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Sección 6: Recuperación de Cuentas -->
+            <section id="recovery" class="section-content">
+                <div class="cyber-card p-4 md:p-8">
+                    <div class="flex items-center mb-4 md:mb-6">
+                        <i class="fas fa-key text-green-400 text-xl md:text-2xl mr-3"></i>
+                        <h3 class="text-xl md:text-2xl font-bold section-title">
+                            <span data-i18n="recovery.title">>> RECUPERACIÓN_DE_ACCESO</span>
+                        </h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+                        <div>
+                            <h4 class="text-lg md:text-xl font-bold mb-2 md:mb-4 text-green-300" data-i18n="recovery.emailTitle">
+                                RECUPERACIÓN POR EMAIL
+                            </h4>
+                            <p class="mb-3 md:mb-4 text-green-300/70 text-sm md:text-base" data-i18n="recovery.emailDesc">
+                                Si proporcionaste un email durante el registro, podemos enviarte un enlace de recuperación.
+                            </p>
+                            
+                            <div class="space-y-3 md:space-y-4">
+                                <input type="email" 
+                                       id="recoveryEmail" 
+                                       placeholder="tu@email.com" 
+                                       class="cyber-input w-full p-3 text-sm md:text-base"
+                                       data-i18n-placeholder="recovery.emailPlaceholder">
+                                <button onclick="initiateRecovery()" class="cyber-button w-full text-sm md:text-base">
+                                    <i class="fas fa-paper-plane mr-2"></i>
+                                    <span data-i18n="recovery.sendRecovery">ENVIAR ENLACE</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 md:mt-0">
+                            <h4 class="text-lg md:text-xl font-bold mb-2 md:mb-4 text-green-300" data-i18n="recovery.supportTitle">
+                                SOPORTE DIRECTO
+                            </h4>
+                            <p class="mb-3 md:mb-4 text-green-300/70 text-sm md:text-base" data-i18n="recovery.supportDesc">
+                                Para casos complejos o si no tienes acceso al email registrado.
+                            </p>
+                            
+                            <div class="cyber-info p-3 md:p-4">
+                                <div class="flex items-start mb-2 md:mb-3">
+                                    <i class="fas fa-life-ring text-green-400 mt-1 mr-2 md:mr-3"></i>
+                                    <div>
+                                        <h5 class="font-bold text-sm md:text-base" data-i18n="recovery.contact">CONTACTO DE SOPORTE</h5>
+                                        <p class="text-xs md:text-sm mt-1" data-i18n="recovery.responseTime">
+                                            Respuesta en menos de 48 horas
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-3 md:mt-4">
+                                    <a href="mailto:support@deepirc.net" 
+                                       class="inline-flex items-center text-green-400 hover:text-white transition-colors text-sm md:text-base">
+                                        <i class="fas fa-envelope mr-2"></i>
+                                        <span>support@deepirc.net</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-green-900/30">
+                        <h4 class="text-base md:text-lg font-bold mb-2 md:mb-3" data-i18n="recovery.faqTitle">PREGUNTAS FRECUENTES</h4>
+                        <div class="space-y-3 md:space-y-4">
+                            <!-- FAQ items se cargarán dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+        </main>
+        
+        <!-- Footer -->
+        <footer class="mt-8 md:mt-12 pt-6 md:pt-8 border-t border-green-900/30 text-center text-green-700 text-xs md:text-sm">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-3 md:mb-0">
+                    <span data-i18n="footer.copyright">© 2024 DeepIRC Project. Todos los derechos reservados.</span>
+                    <span class="mx-2 hidden md:inline">|</span>
+                    <span class="block md:inline mt-1 md:mt-0" data-i18n="footer.version">v2.0.1</span>
+                </div>
+                
+                <div class="flex flex-wrap justify-center gap-3 md:gap-6">
+                    <a href="#" class="hover:text-green-400 transition-colors" data-i18n="footer.privacy">
+                        Privacidad
+                    </a>
+                    <a href="#" class="hover:text-green-400 transition-colors" data-i18n="footer.terms">
+                        Términos
+                    </a>
+                    <a href="#ayuda" class="hover:text-green-400 transition-colors" data-i18n="footer.help">
+                        Ayuda
+                    </a>
+                    <a href="mailto:contact@deepirc.net" class="hover:text-green-400 transition-colors">
+                        <i class="fas fa-envelope mr-1"></i>
+                        <span data-i18n="footer.contact">Contacto</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="mt-3 md:mt-4 text-green-800 text-xs">
+                <span data-i18n="footer.disclaimer">
+                    Este sistema está protegido bajo el Pacto de Honor DeepIRC. El uso no autorizado está prohibido.
+                </span>
+            </div>
+        </footer>
+        
+    </div> <!-- Fin del contenedor principal -->
+    
+    <!-- Botón flotante para contrato (solo móvil) -->
+    <div id="contractQuickAccess" class="fixed bottom-4 right-4 z-50 md:hidden">
+        <button onclick="scrollToContract()" class="cyber-button-small bg-green-900/80 backdrop-blur-sm border-green-500 p-3 rounded-full shadow-lg">
+            <i class="fas fa-file-contract text-xl"></i>
+        </button>
     </div>
-</section>
-
-<!-- Añadir al final del body, antes de cerrar -->
-<script>
-    function scrollToContractHelp() {
-        // Aquí puedes añadir funcionalidad para mostrar ayuda
-        alert("El Pacto de Honor es un acuerdo de confianza mutua. Si tienes preguntas específicas, contacta a support@deepirc.net");
-    }
-</script>
+    
+    <!-- Scripts -->
+    <script src="translations.js"></script>
+    <script src="scripts.js"></script>
+    
+    <script>
+        // Función auxiliar para ayuda del contrato
+        function scrollToContractHelp() {
+            alert("El Pacto de Honor es un acuerdo de confianza mutua entre tú y DeepIRC. Establece las reglas básicas de uso y privacidad. Si tienes preguntas específicas, contacta a support@deepirc.net");
+        }
+        
+        // Función para scroll al contrato
+        function scrollToContract() {
+            // Mostrar sección del contrato
+            const contractNav = document.querySelector('.nav-link[data-section="contract"]');
+            if (contractNav) {
+                contractNav.click();
+            }
+            
+            // Destacar el checkbox
+            setTimeout(() => {
+                const pactCheckbox = document.getElementById('acceptPact');
+                const pactContainer = pactCheckbox.closest('.pact-checkbox');
+                if (pactContainer) {
+                    pactContainer.classList.add('highlight');
+                    
+                    // Scroll al checkbox
+                    pactContainer.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center' 
+                    });
+                    
+                    // Quitar highlight después de 2 segundos
+                    setTimeout(() => {
+                        pactContainer.classList.remove('highlight');
+                    }, 2000);
+                }
+            }, 300);
+        }
+        
+        // Inicialización adicional
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mejorar experiencia táctil
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            
+            if (isTouchDevice) {
+                document.body.classList.add('touch-device');
+                
+                // Mejorar feedback táctil
+                document.querySelectorAll('button, .nav-link, .lang-btn').forEach(element => {
+                    element.addEventListener('touchstart', function() {
+                        this.classList.add('active-touch');
+                    });
+                    
+                    element.addEventListener('touchend', function() {
+                        this.classList.remove('active-touch');
+                    });
+                });
+            }
+            
+            // Verificar si ya se aceptó el pacto
+            const pactAccepted = localStorage.getItem('deepirc_pact_accepted');
+            if (pactAccepted) {
+                const pactCheckbox = document.getElementById('acceptPact');
+                if (pactCheckbox) {
+                    pactCheckbox.checked = true;
+                }
+                
+                // Quitar indicador de requerido
+                const contractNav = document.querySelector('.nav-link[data-section="contract"] .bg-red-500');
+                if (contractNav) {
+                    contractNav.remove();
+                }
+            }
+            
+            // Manejar hash en URL
+            if (window.location.hash) {
+                const hash = window.location.hash.substring(1);
+                const validSections = ['landing', 'help', 'linking', 'contract', 'admin', 'recovery'];
+                
+                if (validSections.includes(hash)) {
+                    // Pequeño delay para asegurar que todo esté cargado
+                    setTimeout(() => {
+                        const navLink = document.querySelector(`.nav-link[data-section="${hash}"]`);
+                        if (navLink) {
+                            navLink.click();
+                        }
+                    }, 100);
+                }
+            }
+        });
+    </script>
+    
+</body>
+</html>
