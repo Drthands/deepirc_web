@@ -7,6 +7,7 @@ const translations = {
         "nav.pact": "PACTO",
         "nav.admin": "ADMIN",
         "nav.recovery": "RECUPERAR",
+        "nav.back": "VOLVER",
         
         // Landing
         "landing.description": "DeepIRC no es solo un cliente. Es un túnel hacia la red IRC con enrutamiento Tor nativo, cifrado OTR y aislamiento total de metadatos.",
@@ -92,30 +93,68 @@ const translations = {
         "admin.stats.premium": "PREMIUM",
         
         // Recuperación
-        "recovery.title": ">> RECUPERACIÓN_DE_ACCESO",
-        "recovery.emailTitle": "RECUPERACIÓN POR EMAIL",
-        "recovery.emailDesc": "Si proporcionaste un email durante el registro, podemos enviarte un enlace de recuperación.",
-        "recovery.emailPlaceholder": "tu@email.com",
-        "recovery.sendRecovery": "ENVIAR ENLACE",
-        "recovery.supportTitle": "SOPORTE DIRECTO",
-        "recovery.supportDesc": "Para casos complejos o si no tienes acceso al email registrado.",
-        "recovery.contact": "CONTACTO DE SOPORTE",
-        "recovery.responseTime": "Respuesta en menos de 48 horas",
+        "recovery.title": ">> RECLAMAR_IDENTIDAD_ELITE",
+        "recovery.secure": "CANAL_SEGURO_ACTIVO",
+        "recovery.step1": "VERIFICAR ID",
+        "recovery.step2": "CONFIRMAR EMAIL",
+        "recovery.step3": "VINCULAR",
+        "recovery.verifyTitle": "VERIFICACIÓN DE HUELLA DIGITAL",
+        "recovery.verifyDesc": "Proporciona tu nick y contraseña maestra para iniciar el proceso de recuperación. El sistema buscará tu huella en la red y enviará un código de verificación a tu email encriptado.",
+        "recovery.nickLabel": "NICK_DE_USUARIO",
+        "recovery.nickHint": "El nick que utilizabas en DeepIRC",
+        "recovery.passLabel": "CONTRASEÑA_MAESTRA",
+        "recovery.passHint": "La contraseña que estableciste durante el registro inicial",
+        "recovery.searchButton": "BUSCAR HUELLA EN LA RED",
+        "recovery.emailTitle": "VERIFICACIÓN POR EMAIL",
+        "recovery.emailDesc": "Se ha enviado un código de verificación al email asociado a tu cuenta. Revisa tu bandeja de entrada (y la carpeta de spam) e introduce el código a continuación.",
+        "recovery.codeLabel": "CÓDIGO DE VERIFICACIÓN",
+        "recovery.codeHint": "Código de 6 caracteres enviado por email",
+        "recovery.resend": "REENVIAR CÓDIGO",
+        "recovery.codeExpires": "EL CÓDIGO CADUCA EN:",
+        "recovery.confirmButton": "VERIFICAR Y CONTINUAR",
+        "recovery.deviceTitle": "VINCULAR NUEVO DISPOSITIVO",
+        "recovery.deviceDesc": "¡Identidad verificada con éxito! Ahora puedes vincular tu nuevo dispositivo. Copia el token generado o escanea el código QR desde la aplicación DeepIRC.",
+        "recovery.tokenLabel": "TOKEN DE VINCULACIÓN",
+        "recovery.tokenHint": "Copia este token y pégalo en la aplicación DeepIRC > Vinculación",
+        "recovery.qrHint": "Escanea este código QR desde la aplicación móvil",
+        "recovery.instructionsTitle": "INSTRUCCIONES:",
+        "recovery.instruction1": "Abre la aplicación DeepIRC en tu nuevo dispositivo",
+        "recovery.instruction2": "Ve a Configuración > Recuperar Cuenta",
+        "recovery.instruction3": "Introduce el token o escanea el código QR",
+        "recovery.instruction4": "Tu identidad se transferirá automáticamente",
+        "recovery.restartButton": "NUEVA RECUPERACIÓN",
+        "recovery.homeButton": "VOLVER AL INICIO",
+        "recovery.securityTitle": "IMPORTANTE: SEGURIDAD",
+        "recovery.security1": "• Este proceso solo puede realizarse una vez cada 24 horas por cuenta",
+        "recovery.security2": "• Los tokens de recuperación expiran después de 15 minutos",
+        "recovery.security3": "• Notificaremos a todos los dispositivos vinculados sobre esta recuperación",
+        "recovery.security4": "• Si no reconoces esta actividad, contacta con soporte inmediatamente",
         "recovery.faqTitle": "PREGUNTAS FRECUENTES",
-        "recovery.faqItems": [
-            {
-                "q": "¿Cuánto tarda el proceso de recuperación?",
-                "a": "El enlace de recuperación se envía inmediatamente. Si no lo recibes en 5 minutos, revisa la carpeta de spam."
-            },
-            {
-                "q": "¿Qué información necesito para recuperar mi cuenta?",
-                "a": "Necesitas el email registrado o algún dato de tu dispositivo (UUID, nick, etc.)."
-            },
-            {
-                "q": "¿Puedo recuperar mi cuenta sin email?",
-                "a": "Sí, contacta con soporte directo con la mayor información posible sobre tu cuenta."
-            }
-        ],
+        "recovery.faq1q": "¿No recibes el email de verificación?",
+        "recovery.faq1a": "Revisa tu carpeta de spam. Si aún no lo encuentras, espera 5 minutos y utiliza la opción 'Reenviar código'.",
+        "recovery.faq2q": "¿Olvidaste tu contraseña maestra?",
+        "recovery.faq2a": "Contacta con soporte a través de support@deepirc.net con la mayor información posible sobre tu cuenta.",
+        "recovery.faq3q": "¿El token no funciona en la app?",
+        "recovery.faq3a": "Asegúrate de que la aplicación esté actualizada a la última versión y que tengas conexión a internet.",
+        "recovery.status.searching": "BUSCANDO HUELLA EN LA RED...",
+        "recovery.status.emailSent": "EMAIL ENVIADO. Revisa tu bandeja de entrada.",
+        "recovery.status.verifying": "VERIFICANDO CÓDIGO DE SEGURIDAD...",
+        "recovery.status.success": "¡IDENTIDAD RECUPERADA CON ÉXITO!",
+        "recovery.status.resending": "REENVIANDO CÓDIGO...",
+        "recovery.status.resent": "CÓDIGO REENVIADO. Revisa tu email.",
+        "recovery.status.awaiting": "ESPERANDO VERIFICACIÓN...",
+        "recovery.errors.nickShort": "ERROR: El nick debe tener al menos 3 caracteres.",
+        "recovery.errors.passShort": "ERROR: La contraseña debe tener al menos 8 caracteres.",
+        "recovery.errors.notFound": "ERROR: No se encontró ninguna cuenta con esas credenciales.",
+        "recovery.errors.invalidCode": "ERROR: Formato de código inválido. Usa el formato: XXXX-XXXX-XXXX",
+        "recovery.errors.wrongCode": "ERROR: Código incorrecto. Por favor, verifica e intenta de nuevo.",
+        "recovery.errors.codeExpired": "CÓDIGO EXPIRADO. Por favor, solicita uno nuevo.",
+        "recovery.errors.generic": "ERROR: Ocurrió un error inesperado. Intenta de nuevo.",
+        "recovery.copied": "¡COPIADO!",
+        "recovery.confirmRestart": "¿Estás seguro de que quieres reiniciar el proceso? Se perderán los datos actuales.",
+        "recovery.footer.encrypted": "CANAL CIFRADO: AES-256-GCM",
+        "recovery.footer.support": "Soporte",
+        "recovery.footer.disclaimer": "Sistema de recuperación protegido por el Pacto de Honor DeepIRC. Todas las solicitudes son auditadas.",
         
         // Footer
         "footer.copyright": "© 2024 DeepIRC Project. Todos los derechos reservados.",
@@ -144,6 +183,7 @@ const translations = {
         "nav.pact": "PACT",
         "nav.admin": "ADMIN",
         "nav.recovery": "RECOVERY",
+        "nav.back": "BACK",
         
         // Landing
         "landing.description": "DeepIRC is not just a client. It's a tunnel to the IRC network with native Tor routing, OTR encryption and complete metadata isolation.",
@@ -229,30 +269,68 @@ const translations = {
         "admin.stats.premium": "PREMIUM",
         
         // Recovery
-        "recovery.title": ">> ACCOUNT_RECOVERY",
-        "recovery.emailTitle": "EMAIL RECOVERY",
-        "recovery.emailDesc": "If you provided an email during registration, we can send you a recovery link.",
-        "recovery.emailPlaceholder": "your@email.com",
-        "recovery.sendRecovery": "SEND LINK",
-        "recovery.supportTitle": "DIRECT SUPPORT",
-        "recovery.supportDesc": "For complex cases or if you don't have access to the registered email.",
-        "recovery.contact": "SUPPORT CONTACT",
-        "recovery.responseTime": "Response in less than 48 hours",
+        "recovery.title": ">> ELITE_IDENTITY_RECOVERY",
+        "recovery.secure": "SECURE_CHANNEL_ACTIVE",
+        "recovery.step1": "VERIFY ID",
+        "recovery.step2": "CONFIRM EMAIL",
+        "recovery.step3": "LINK DEVICE",
+        "recovery.verifyTitle": "DIGITAL FINGERPRINT VERIFICATION",
+        "recovery.verifyDesc": "Provide your nick and master password to start the recovery process. The system will search for your fingerprint on the network and send a verification code to your encrypted email.",
+        "recovery.nickLabel": "USER_NICK",
+        "recovery.nickHint": "The nick you used on DeepIRC",
+        "recovery.passLabel": "MASTER_PASSWORD",
+        "recovery.passHint": "The password you set during initial registration",
+        "recovery.searchButton": "SEARCH NETWORK FINGERPRINT",
+        "recovery.emailTitle": "EMAIL VERIFICATION",
+        "recovery.emailDesc": "A verification code has been sent to the email associated with your account. Check your inbox (and spam folder) and enter the code below.",
+        "recovery.codeLabel": "VERIFICATION CODE",
+        "recovery.codeHint": "6-character code sent by email",
+        "recovery.resend": "RESEND CODE",
+        "recovery.codeExpires": "CODE EXPIRES IN:",
+        "recovery.confirmButton": "VERIFY AND CONTINUE",
+        "recovery.deviceTitle": "LINK NEW DEVICE",
+        "recovery.deviceDesc": "Identity successfully verified! You can now link your new device. Copy the generated token or scan the QR code from the DeepIRC app.",
+        "recovery.tokenLabel": "LINKING TOKEN",
+        "recovery.tokenHint": "Copy this token and paste it in DeepIRC app > Linking",
+        "recovery.qrHint": "Scan this QR code from the mobile app",
+        "recovery.instructionsTitle": "INSTRUCTIONS:",
+        "recovery.instruction1": "Open the DeepIRC app on your new device",
+        "recovery.instruction2": "Go to Settings > Recover Account",
+        "recovery.instruction3": "Enter the token or scan the QR code",
+        "recovery.instruction4": "Your identity will be transferred automatically",
+        "recovery.restartButton": "NEW RECOVERY",
+        "recovery.homeButton": "RETURN TO HOME",
+        "recovery.securityTitle": "IMPORTANT: SECURITY",
+        "recovery.security1": "• This process can only be performed once every 24 hours per account",
+        "recovery.security2": "• Recovery tokens expire after 15 minutes",
+        "recovery.security3": "• We will notify all linked devices about this recovery",
+        "recovery.security4": "• If you don't recognize this activity, contact support immediately",
         "recovery.faqTitle": "FREQUENTLY ASKED QUESTIONS",
-        "recovery.faqItems": [
-            {
-                "q": "How long does the recovery process take?",
-                "a": "The recovery link is sent immediately. If you don't receive it within 5 minutes, check your spam folder."
-            },
-            {
-                "q": "What information do I need to recover my account?",
-                "a": "You need the registered email or some device data (UUID, nick, etc.)."
-            },
-            {
-                "q": "Can I recover my account without email?",
-                "a": "Yes, contact direct support with as much information as possible about your account."
-            }
-        ],
+        "recovery.faq1q": "Not receiving verification email?",
+        "recovery.faq1a": "Check your spam folder. If you still can't find it, wait 5 minutes and use the 'Resend code' option.",
+        "recovery.faq2q": "Forgot your master password?",
+        "recovery.faq2a": "Contact support at support@deepirc.net with as much information as possible about your account.",
+        "recovery.faq3q": "Token not working in the app?",
+        "recovery.faq3a": "Make sure the app is updated to the latest version and that you have internet connection.",
+        "recovery.status.searching": "SEARCHING NETWORK FINGERPRINT...",
+        "recovery.status.emailSent": "EMAIL SENT. Check your inbox.",
+        "recovery.status.verifying": "VERIFYING SECURITY CODE...",
+        "recovery.status.success": "IDENTITY SUCCESSFULLY RECOVERED!",
+        "recovery.status.resending": "RESENDING CODE...",
+        "recovery.status.resent": "CODE RESENT. Check your email.",
+        "recovery.status.awaiting": "AWAITING VERIFICATION...",
+        "recovery.errors.nickShort": "ERROR: Nick must be at least 3 characters.",
+        "recovery.errors.passShort": "ERROR: Password must be at least 8 characters.",
+        "recovery.errors.notFound": "ERROR: No account found with those credentials.",
+        "recovery.errors.invalidCode": "ERROR: Invalid code format. Use format: XXXX-XXXX-XXXX",
+        "recovery.errors.wrongCode": "ERROR: Incorrect code. Please verify and try again.",
+        "recovery.errors.codeExpired": "CODE EXPIRED. Please request a new one.",
+        "recovery.errors.generic": "ERROR: An unexpected error occurred. Please try again.",
+        "recovery.copied": "COPIED!",
+        "recovery.confirmRestart": "Are you sure you want to restart the process? Current data will be lost.",
+        "recovery.footer.encrypted": "ENCRYPTED CHANNEL: AES-256-GCM",
+        "recovery.footer.support": "Support",
+        "recovery.footer.disclaimer": "Recovery system protected by DeepIRC Honor Pact. All requests are audited.",
         
         // Footer
         "footer.copyright": "© 2024 DeepIRC Project. All rights reserved.",
@@ -271,8 +349,139 @@ const translations = {
         "status.linked": "LINKING SUCCESSFUL. You can return to the App.",
         "status.recoverySent": "RECOVERY LINK SENT. Check your email.",
         "status.noEmail": "ERROR: Invalid or unregistered email."
-    }
+    },
     
-    // Se pueden añadir más idiomas siguiendo el mismo patrón:
-    // fr: {...}, pt: {...}, it: {...}, de: {...}, etc.
-};
+    fr: {
+        // Navigation
+        "nav.home": "ACCUEIL",
+        "nav.help": "MANUEL_OPÉRATIONS",
+        "nav.link": "LIEN",
+        "nav.pact": "PACTE",
+        "nav.admin": "ADMIN",
+        "nav.recovery": "RÉCUPÉRATION",
+        "nav.back": "RETOUR",
+        
+        // Landing
+        "landing.description": "DeepIRC n'est pas juste un client. C'est un tunnel vers le réseau IRC avec routage Tor natif, chiffrement OTR et isolement total des métadonnées.",
+        
+        // Features
+        "features.anon.title": "ANONYMAT TOTAL",
+        "features.anon.desc": "Pseudonymes éphémères et rotation automatique des identités.",
+        "features.encrypt.title": "CHIFFREMENT E2EE",
+        "features.encrypt.desc": "Chiffrement de bout en bout avec clés temporaires.",
+        "features.logs.title": "AUCUN JOURNAL",
+        "features.logs.desc": "Auto-destruction des logs et effacement forensique automatique.",
+        
+        // Operations Manual
+        "help.title": ">> MANUEL_D'OPÉRATIONS",
+        "help.items": [
+            {
+                "title": "[01] MODE PARANOÏAQUE",
+                "desc": "Activez 'Isolation d'App' dans Paramètres. L'app coupera toutes les connexions automatiques aux serveurs d'aide pour éviter le traçage accidentel d'IP."
+            },
+            {
+                "title": "[02] ROUTE TOR (SOCKS5)",
+                "desc": "Configurez 127.0.0.1:9050. DeepIRC enverra vos paquets à travers le réseau oignon. Requiert Orbot actif."
+            },
+            {
+                "title": "[03] PSEUDO ÉVOLUTIF",
+                "desc": "Identités éphémères. Le système générera des pseudos aléatoires à chaque connexion pour empêcher le traçage historique de votre activité."
+            },
+            {
+                "title": "[04] MESSAGES ÉPHÉMÈRES",
+                "desc": "Auto-destruction locale. Les journaux sont effacés de votre appareil après le temps configuré. Aucune trace forensique."
+            }
+        ],
+        
+        // Linking
+        "linking.title": ">> LIEN_DE_COMPTE",
+        "linking.description": "Entrez le code de vérification fourni par l'application pour accéder à votre panneau de contrat et aux fonctionnalités premium.",
+        "linking.process": "TRAITER",
+        "linking.awaiting": "EN_ATTENTE_TOKEN...",
+        "linking.lostToken": "PERDU VOTRE TOKEN?",
+        "linking.recoveryInfo": "Si vous avez perdu votre appareil ou token d'accès, visitez la section récupération.",
+        "linking.goRecovery": "ALLER À RÉCUPÉRATION",
+        
+        // Contract
+        "contract.title": ">> PACTE_DE_CONFIANCE_v2.0",
+        "contract.items": [
+            {
+                "title": "[01] VOS DONNÉES VOUS APPARTIENNENT:",
+                "desc": "DeepIRC ne collecte rien sur vous qui ne soit strictement nécessaire au fonctionnement de l'app (comme vos serveurs ou pseudos). Je ne m'intéresse pas à vos données, je n'en vis pas, et je ne les vendrais à personne même si on me payait avec le serveur le plus rapide du monde. Point."
+            },
+            {
+                "title": "[02] CONFIANCE MUTUELLE:",
+                "desc": "C'est un pacte. Je fais confiance que vous n'essaierez pas de casser le système et vous faites confiance à mon code. Si à un moment vous arrêtez de me faire confiance ou à ce que cette app fait, la meilleure chose est de la supprimer. Sans rancune."
+            },
+            {
+                "title": "[03] USAGE CIVILISÉ:",
+                "desc": "Vous êtes responsable de ce que vous dites et faites sur les réseaux IRC. Respectez les règles des serveurs auxquels vous vous connectez et maintenez un comportement civilisé. N'utilisez pas DeepIRC pour faire le mal; si je détecte un usage frauduleux ou nuisible, je me réserve le droit de prendre les mesures que je juge appropriées (et croyez-moi, j'ai des outils pour cela)."
+            },
+            {
+                "title": "[04] CONTRIBUTIONS:",
+                "desc": "Si vous décidez de mettre de l'argent pour soutenir ce projet, sachez que c'est un don pour la maintenance et le café du développement. Vous n'achetez pas l'app; la propriété intellectuelle reste la mienne, mais j'apprécie infiniment que vous m'aidiez à garder la machine en marche."
+            },
+            {
+                "title": "[05] SANS GARANTIE:",
+                "desc": "Ce logiciel est fourni 'tel quel'. Je ne garantis pas qu'il fonctionnera parfaitement dans toutes les situations, ni qu'il soit immunisé contre les vulnérabilités. La sécurité totale n'existe pas. Utilisez-le à vos risques et périls."
+            }
+        ],
+        "contract.acceptTitle": "ACCEPTATION DU PACTE",
+        "contract.acceptText": "En cochant cette case, vous confirmez avoir lu, compris et accepté tous les termes du Pacte d'Honneur DeepIRC. Cette action est irréversible et constitue un accord contraignant entre vous et le système.",
+        
+        // Admin
+        "admin.title": "!! SYSTÈME_ADMINISTRATION_ROOT !!",
+        "admin.subtitle": "Accès restreint aux opérateurs autorisés",
+        "admin.sync": "SYNCHRONISER",
+        "admin.logout": "DÉCONNEXION",
+        "admin.table.uuid": "UUID_APP",
+        "admin.table.nick": "PSEUDO_ASSOCIÉ",
+        "admin.table.email": "EMAIL",
+        "admin.table.status": "STATUT",
+        "admin.table.lastAccess": "DERNIER_ACCÈS",
+        "admin.table.actions": "ACTIONS",
+        "admin.stats.total": "UTILISATEURS TOTAUX",
+        "admin.stats.active": "ACTIFS (24H)",
+        "admin.stats.premium": "PREMIUM",
+        
+        // Recovery
+        "recovery.title": ">> RÉCUPÉRATION_IDENTITÉ_ÉLITE",
+        "recovery.secure": "CANAL_SÉCURISÉ_ACTIF",
+        "recovery.step1": "VÉRIFIER ID",
+        "recovery.step2": "CONFIRMER EMAIL",
+        "recovery.step3": "LIER",
+        "recovery.verifyTitle": "VÉRIFICATION EMPREINTE NUMÉRIQUE",
+        "recovery.verifyDesc": "Fournissez votre pseudo et mot de passe maître pour démarrer le processus de récupération. Le système recherchera votre empreinte sur le réseau et enverra un code de vérification à votre email chiffré.",
+        "recovery.nickLabel": "PSEUDO_UTILISATEUR",
+        "recovery.nickHint": "Le pseudo que vous utilisiez sur DeepIRC",
+        "recovery.passLabel": "MOT_DE_PASSE_MAÎTRE",
+        "recovery.passHint": "Le mot de passe que vous avez défini lors de l'inscription initiale",
+        "recovery.searchButton": "RECHERCHER EMPREINTE RÉSEAU",
+        "recovery.emailTitle": "VÉRIFICATION PAR EMAIL",
+        "recovery.emailDesc": "Un code de vérification a été envoyé à l'email associé à votre compte. Vérifiez votre boîte de réception (et dossier spam) et entrez le code ci-dessous.",
+        "recovery.codeLabel": "CODE DE VÉRIFICATION",
+        "recovery.codeHint": "Code à 6 caractères envoyé par email",
+        "recovery.resend": "RENVOYER CODE",
+        "recovery.codeExpires": "LE CODE EXPIRE DANS:",
+        "recovery.confirmButton": "VÉRIFIER ET CONTINUER",
+        "recovery.deviceTitle": "LIER NOUVEL APPAREIL",
+        "recovery.deviceDesc": "Identité vérifiée avec succès! Vous pouvez maintenant lier votre nouvel appareil. Copiez le token généré ou scannez le code QR depuis l'application DeepIRC.",
+        "recovery.tokenLabel": "TOKEN DE LIAISON",
+        "recovery.tokenHint": "Copiez ce token et collez-le dans l'app DeepIRC > Liaison",
+        "recovery.qrHint": "Scannez ce code QR depuis l'application mobile",
+        "recovery.instructionsTitle": "INSTRUCTIONS:",
+        "recovery.instruction1": "Ouvrez l'application DeepIRC sur votre nouvel appareil",
+        "recovery.instruction2": "Allez dans Paramètres > Récupérer Compte",
+        "recovery.instruction3": "Entrez le token ou scannez le code QR",
+        "recovery.instruction4": "Votre identité sera transférée automatiquement",
+        "recovery.restartButton": "NOUVELLE RÉCUPÉRATION",
+        "recovery.homeButton": "RETOUR À L'ACCUEIL",
+        "recovery.securityTitle": "IMPORTANT: SÉCURITÉ",
+        "recovery.security1": "• Ce processus ne peut être effectué qu'une fois toutes les 24 heures par compte",
+        "recovery.security2": "• Les tokens de récupération expirent après 15 minutes",
+        "recovery.security3": "• Nous notifierons tous les appareils liés de cette récupération",
+        "recovery.security4": "• Si vous ne reconnaissez pas cette activité, contactez le support immédiatement",
+        "recovery.faqTitle": "QUESTIONS FRÉQUENTES",
+        "recovery.faq1q": "Vous ne recevez pas l'email de vérification?",
+        "recovery.faq1a": "Vérifiez votre dossier spam. Si vous ne le trouvez toujours pas, attendez 5 minutes et utilisez l'option 'Renvoyer le code'.",
+        "recovery.faq2q": "
