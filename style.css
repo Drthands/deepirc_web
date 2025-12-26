@@ -811,3 +811,189 @@ input[type="button"],
 .downloading {
     animation: download-pulse 1s infinite;
 }
+
+/* Añade al final del archivo */
+
+/* Mantener navegación siempre visible */
+nav {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    background-color: rgba(0, 0, 0, 0.95) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border-bottom: 1px solid rgba(0, 255, 65, 0.2) !important;
+}
+
+/* Prevenir que los enlaces desaparezcan */
+.nav-link {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transition: all 0.3s ease !important;
+}
+
+.nav-link:hover {
+    background-color: rgba(0, 255, 65, 0.1) !important;
+    transform: translateY(-2px) !important;
+}
+
+.nav-link.active {
+    background-color: rgba(0, 255, 65, 0.2) !important;
+    border-color: #00FF41 !important;
+}
+
+/* Scroll horizontal en móvil */
+@media (max-width: 768px) {
+    nav .flex {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: thin !important;
+        padding-bottom: 8px !important;
+    }
+    
+    nav .flex::-webkit-scrollbar {
+        height: 4px !important;
+    }
+    
+    nav .flex::-webkit-scrollbar-thumb {
+        background-color: #00FF41 !important;
+        border-radius: 2px !important;
+    }
+}
+
+/* Efecto para resaltar el pacto */
+.highlight-pact {
+    animation: pact-pulse 2s infinite !important;
+    border-color: #00FF41 !important;
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.3) !important;
+}
+
+@keyframes pact-pulse {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(0, 255, 65, 0.6);
+    }
+}
+/* ESTILOS FIJOS PARA NAVEGACIÓN */
+
+/* Asegurar que todas las secciones se oculten/muestren correctamente */
+.section-content {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.section-content.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Forzar visibilidad de navegación */
+nav {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 9999 !important;
+    background: rgba(0, 0, 0, 0.98) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid rgba(0, 255, 65, 0.3) !important;
+    padding: 1rem 0 !important;
+    margin-bottom: 2rem !important;
+}
+
+/* Enlaces de navegación siempre visibles */
+.nav-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 0.5rem 1rem !important;
+    border: 1px solid rgba(0, 255, 65, 0.2) !important;
+    border-radius: 4px !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    color: #00FF41 !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    white-space: nowrap !important;
+    min-width: max-content !important;
+    user-select: none !important;
+    pointer-events: auto !important;
+}
+
+.nav-link:hover {
+    background: rgba(0, 255, 65, 0.1) !important;
+    border-color: #00FF41 !important;
+    transform: translateY(-1px) !important;
+}
+
+.nav-link.active {
+    background: rgba(0, 255, 65, 0.2) !important;
+    border-color: #00FF41 !important;
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.3) !important;
+}
+
+/* Contenedor de navegación scrollable */
+nav > div {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-bottom: 0.5rem !important;
+}
+
+/* Scrollbar personalizada */
+nav > div::-webkit-scrollbar {
+    height: 6px;
+}
+
+nav > div::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+}
+
+nav > div::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 65, 0.5);
+    border-radius: 3px;
+}
+
+/* Resaltar pacto */
+.highlight {
+    animation: highlight-pulse 2s ease-in-out !important;
+    border-color: #00FF41 !important;
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.5) !important;
+}
+
+@keyframes highlight-pulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(0, 255, 65, 0.3); }
+    50% { box-shadow: 0 0 30px rgba(0, 255, 65, 0.7); }
+}
+
+/* Para móviles */
+@media (max-width: 768px) {
+    .nav-link {
+        padding: 0.4rem 0.8rem !important;
+        font-size: 0.9rem !important;
+    }
+    
+    nav > div {
+        margin: 0 -0.5rem !important;
+        padding: 0 0.5rem !important;
+    }
+}
+
+/* Animación suave para cambios de sección */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.section-content.active {
+    animation: fadeIn 0.3s ease forwards;
+}

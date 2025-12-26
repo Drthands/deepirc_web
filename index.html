@@ -60,55 +60,44 @@
         </header>
         
         <!-- Navegación -->
-        <nav class="mb-8 border-b border-green-900/30 pb-4">
-            <div class="flex flex-nowrap gap-2 md:gap-4 overflow-x-auto pb-2 -mx-2 px-2">
-                <a href="#inicio" class="nav-link active flex-shrink-0" data-section="landing">
-                    <i class="fas fa-terminal mr-2"></i>
-                    <span data-i18n="nav.home">INICIO</span>
-                </a>
-                <a href="#ayuda" class="nav-link flex-shrink-0" data-section="help">
-                    <i class="fas fa-code mr-2"></i>
-                    <span data-i18n="nav.help">MANUAL</span>
-                </a>
-                <a href="#vinculacion" class="nav-link flex-shrink-0" data-section="linking">
-                    <i class="fas fa-link mr-2"></i>
-                    <span data-i18n="nav.link">VINCULAR</span>
-                </a>
-                <a href="#contrato" class="nav-link flex-shrink-0" data-section="contract">
-                    <i class="fas fa-file-contract mr-2"></i>
-                    <span data-i18n="nav.pact">PACTO</span>
-                    <span class="ml-2 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                </a>
-                <a href="#admin" class="nav-link flex-shrink-0" data-section="admin" style="display: none;" id="adminNav">
-                    <i class="fas fa-shield-alt mr-2"></i>
-                    <span data-i18n="nav.admin">ADMIN</span>
-                </a>
-                <a href="#recuperar" class="nav-link flex-shrink-0" data-section="recovery">
-                    <i class="fas fa-key mr-2"></i>
-                    <span data-i18n="nav.recovery">RECUPERAR</span>
-                </a>
-<!-- En la navegación (dentro del <nav>), añadir este enlace: -->
-<a href="#descargas" class="nav-link flex-shrink-0" data-section="downloads">
-    <i class="fas fa-download mr-2"></i>
-    <span data-i18n="nav.downloads">DESCARGAS</span>
-</a>
-
-<!-- En las secciones de contenido, añadir esta sección: -->
-<section id="downloads" class="section-content">
-    <!-- Se cargará dinámicamente con JavaScript -->
-</section>
-
-<!-- En el footer, añadir enlace a Patreon: -->
-<a href="./patreon.html" 
-   target="_blank" 
-   rel="noopener noreferrer"
-   class="hover:text-green-400 transition-colors">
-    <i class="fab fa-patreon mr-1"></i>
-    <span>Patreon</span>
-</a>
-
-            </div>
-        </nav>
+       <nav class="mb-8 border-b border-green-900/30 pb-4">
+    <div class="flex flex-nowrap gap-2 md:gap-4 overflow-x-auto pb-2 -mx-2 px-2">
+        <a href="#landing" class="nav-link flex-shrink-0 active">
+            <i class="fas fa-terminal mr-2"></i>
+            <span data-i18n="nav.home">INICIO</span>
+        </a>
+        <a href="#help" class="nav-link flex-shrink-0">
+            <i class="fas fa-code mr-2"></i>
+            <span data-i18n="nav.help">MANUAL</span>
+        </a>
+        <a href="#linking" class="nav-link flex-shrink-0">
+            <i class="fas fa-link mr-2"></i>
+            <span data-i18n="nav.link">VINCULAR</span>
+        </a>
+               <a href="#contract" class="nav-link flex-shrink-0">
+            <i class="fas fa-file-contract mr-2"></i>
+            <span data-i18n="nav.pact">PACTO</span>
+            <span class="ml-2 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+        </a>
+        <a href="#admin" class="nav-link flex-shrink-0" style="display: none;" id="adminNav">
+            <i class="fas fa-shield-alt mr-2"></i>
+            <span data-i18n="nav.admin">ADMIN</span>
+        </a>
+        <a href="#recovery" class="nav-link flex-shrink-0">
+            <i class="fas fa-key mr-2"></i>
+            <span data-i18n="nav.recovery">RECUPERAR</span>
+        </a>
+		<a href="#downloads" class="nav-link flex-shrink-0">
+            <i class="fas fa-download mr-2"></i>
+            <span data-i18n="nav.downloads">DESCARGAS</span>
+        </a>
+        <a href="#patreon" class="nav-link flex-shrink-0">
+            <i class="fab fa-patreon mr-2"></i>
+            <span data-i18n="nav.patreon">PATREON</span>
+        </a>
+    </div>
+  
+  </nav>
         
         <!-- Secciones de contenido -->
         <main id="contentSections">
@@ -412,6 +401,12 @@
                     </div>
                 </div>
             </section>
+	    <section id="downloads" class="section-content">
+  	        <!-- Se cargará dinámicamente con JavaScript -->
+	    </section>
+	    <section id="patreon" class="section-content" style="display: none;">
+    		<!-- Se cargará dinámicamente -->
+	    </section>
             
         </main>
         
@@ -435,6 +430,14 @@
                         Ayuda
                     </a>
                     <a href="mailto:contact@deepirc.net" class="hover:text-green-400 transition-colors">
+		    <a href="https://www.patreon.com/deepirc" 
+   			target="_blank" 
+   			rel="noopener noreferrer"
+   			class="hover:text-green-400 transition-colors">
+    			<i class="fab fa-patreon mr-1"></i>
+    			<span>Patreon</span>
+		    </a>
+
                         <i class="fas fa-envelope mr-1"></i>
                         <span data-i18n="footer.contact">Contacto</span>
                     </a>
@@ -459,9 +462,19 @@
     
     <!-- Scripts -->
     <script src="translations.js"></script>
-    <script src="scripts.js"></script>
+<script src="main.js"></script>
+<script src="navigation.js"></script>
+<script src="sections.js"></script> <!-- Para cargar contenido de secciones -->
+<script src="patreon.js"></script>
     
     <script>
+// Inicializar navegación mejorada
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeEnhancedNavigation();
+    });
+
+
+
         // Función auxiliar para ayuda del contrato
         function scrollToContractHelp() {
             alert("El Pacto de Honor es un acuerdo de confianza mutua entre tú y DeepIRC. Establece las reglas básicas de uso y privacidad. Si tienes preguntas específicas, contacta a support@deepirc.net");
@@ -534,7 +547,7 @@
             // Manejar hash en URL
             if (window.location.hash) {
                 const hash = window.location.hash.substring(1);
-                const validSections = ['landing', 'help', 'linking', 'contract', 'admin', 'recovery'];
+                const validSections = ['landing', 'help', 'linking', 'contract', 'admin', 'recovery','downloads', 'patreon'];
                 
                 if (validSections.includes(hash)) {
                     // Pequeño delay para asegurar que todo esté cargado
