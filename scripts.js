@@ -4,8 +4,7 @@
 const config = {
     SUPABASE_URL: 'https://bbbqjzjaivzrywwkczry.supabase.co',
     SUPABASE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiYnFqemphaXZ6cnl3d2tjenJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzMjkwMzAsImV4cCI6MjA4MTkwNTAzMH0.6bMDVnoOhiigahZOJU7e59Nn6q95Kop4U4h9iwEtAhQ',
-    MASTER_KEY: "DEEP_DRTHANDS_2025",
-    VERSION: "2.0.1"
+    VERSION: "0.2.1"
 };
 
 const appState = {
@@ -15,6 +14,32 @@ const appState = {
     userData: null,
     pactAccepted: false
 };
+
+// En la parte superior del archivo, añade esto después de las configuraciones:
+if (typeof initAdvancedPatreonEffects !== 'function') {
+    window.initAdvancedPatreonEffects = function() {
+        console.log('Efectos avanzados de Patreon inicializados');
+        // Tu código de efectos para Patreon iría aquí
+    };
+}
+
+// En la función showSection, actualiza el caso 'patreon':
+case 'patreon':
+    if (typeof loadPatreonSection === 'function') {
+        console.log('Cargando sección de Patreon...');
+        // Limpiar sección primero
+        const patreonSection = document.getElementById('patreon');
+        if (patreonSection) {
+            patreonSection.innerHTML = '';
+        }
+        // Cargar sección
+        loadPatreonSection();
+    } else {
+        console.error('loadPatreonSection no está definida');
+        // Crear contenido básico como fallback
+        createFallbackPatreon();
+    }
+    break;
 
 // Función optimizada para mostrar secciones con carga dinámica
 function showSection(sectionId) {
@@ -172,7 +197,7 @@ function createFallbackDownloads() {
                         </h4>
                         <div class="flex flex-wrap gap-4 text-sm text-green-400/70">
                             <span data-i18n="downloads.version">Versión 0.2.1</span>
-                            <span data-i18n="downloads.size">Tamaño: 26.5 MB</span>
+                            <span data-i18n="downloads.size">Tamaño: 23.2 MB</span>
                             <span data-i18n="downloads.security">Verificado: SHA-256</span>
                         </div>
                     </div>
@@ -231,33 +256,38 @@ function createFallbackDownloads() {
     // Re-configurar event listener para el botón de descarga
     document.getElementById('downloadApk')?.addEventListener('click', downloadAPK);
 }
-// Función para descargar APK
+// Función para descargar APK (actualizada)
 function downloadAPK() {
-    // URL del APK (cambiar por la real)
-    const apkUrl = './downloads/DeepIRC_v0.2.1.apk';
-    const sha256Hash = 'a1b2c3d4e5f678901234567890abcdef1234567890abcdef1234567890abcd';
+    // URL del APK (usando la ruta relativa que indicaste)
+    const apkUrl = 'https://deepirc-web.vercel.app/downloads/deepirc_v0.2.1.rar';
     
-    // Mostrar información de seguridad
-    const downloadInfo = `
-        ⚠️ VERIFICACIÓN DE SEGURIDAD REQUERIDA ⚠️
-        
-        Nombre: DeepIRC_v0.2.1.apk
-        SHA-256: ${sha256Hash}
-        Tamaño: 26.5 MB
-        
-        ANTES DE INSTALAR:
-        1. Verifica la firma SHA-256
-        2. Habilita "Fuentes desconocidas"
-        3. Escanea con antivirus
-        
-        ¿Continuar con la descarga?
-    `;
-    
-    if (confirm(downloadInfo)) {
+    // Mostrar mensaje de confirmación
+    if (confirm('¿Descargar DeepIRC v0.2.1 APK (26.5 MB)?\n\nRecuerda activar "Fuentes desconocidas" en tu dispositivo Android.')) {
         // Crear enlace temporal para descarga
         const downloadLink = document.createElement('a');
         downloadLink.href = apkUrl;
-        downloadLink.download = './downloads/deepirc_v0.2.1.apk';
+        downloadLink.download = 'deepirc_v0.2.1.rar'; // Nombre del archivo descargado
+        
+        // Añadir event listener para manejar errores
+        downloadLink.addEventListener('click', function(e) {
+            // Verificar si el archivo existe
+            fetch(apkUrl, { method: 'HEAD' })
+                .then(response => {
+                    if (!response.ok) {
+                        e.preventDefault();
+                        alert('Error: El archivo de descarga no está disponible.\n\nVerifica que el archivo exista en: https://deepirc-web.vercel.app/downloads/deepirc_v0.2.1.rar');
+                        return false;
+                    }
+                    return true;
+                })
+                .catch(error => {
+                    e.preventDefault();
+                    alert('Error al acceder al archivo. Verifica la ruta del archivo.');
+                    console.error('Error de descarga:', error);
+                });
+        });
+        
+        // Añadir al DOM y hacer click
         document.body.appendChild(downloadLink);
         downloadLink.click();
         document.body.removeChild(downloadLink);
@@ -266,22 +296,26 @@ function downloadAPK() {
         const status = document.getElementById('downloadStatus');
         if (status) {
             status.innerHTML = `
-                <div class="cyber-status p-4 mt-4">
+                <div class="cyber-status p-4 mt-4 border border-green-500/30 bg-green-900/10">
                     <div class="flex items-center">
-                        <i class="fas fa-download text-green-400 mr-3"></i>
+                        <i class="fas fa-download text-green-400 mr-3 animate-pulse"></i>
                         <div>
-                            <strong>DESCARGA INICIADA</strong>
-                            <p class="text-sm mt-1">Verifica la firma SHA-256 antes de instalar.</p>
+                            <strong class="text-green-300">DESCARGA INICIADA</strong>
+                            <p class="text-sm mt-1 text-green-400/80">
+                                Si la descarga no comienza automáticamente, <a href="${apkUrl}" download class="underline">haz clic aquí</a>
+                            </p>
                         </div>
                     </div>
                 </div>
             `;
+            
+            // Eliminar el mensaje después de 10 segundos
+            setTimeout(() => {
+                status.innerHTML = '';
+            }, 10000);
         }
     }
 }
-
-
-
 
 function createFallbackPatreon() {
     const patreonSection = document.getElementById('patreon');
