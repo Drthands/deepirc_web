@@ -259,7 +259,7 @@ function createFallbackDownloads() {
 // Función para descargar APK (actualizada)
 function downloadAPK() {
     // URL del APK (usando la ruta relativa que indicaste)
-    const apkUrl = 'https://deepirc-web.vercel.app/downloads/deepirc_v0.2.1.rar';
+    const apkUrl = './downloads/deepirc_v0.2.1.rar';
     
     // Mostrar mensaje de confirmación
     if (confirm('¿Descargar DeepIRC v0.2.1 APK (26.5 MB)?\n\nRecuerda activar "Fuentes desconocidas" en tu dispositivo Android.')) {
@@ -275,7 +275,7 @@ function downloadAPK() {
                 .then(response => {
                     if (!response.ok) {
                         e.preventDefault();
-                        alert('Error: El archivo de descarga no está disponible.\n\nVerifica que el archivo exista en: https://deepirc-web.vercel.app/downloads/deepirc_v0.2.1.rar');
+                        alert('Error: El archivo de descarga no está disponible.\n\nVerifica que el archivo exista en: ./downloads/deepirc_v0.2.1.rar');
                         return false;
                     }
                     return true;
