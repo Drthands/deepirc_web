@@ -4,7 +4,8 @@
 const config = {
     SUPABASE_URL: 'https://bbbqjzjaivzrywwkczry.supabase.co',
     SUPABASE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiYnFqemphaXZ6cnl3d2tjenJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzMjkwMzAsImV4cCI6MjA4MTkwNTAzMH0.6bMDVnoOhiigahZOJU7e59Nn6q95Kop4U4h9iwEtAhQ',
-    VERSION: "0.2.1"
+    MASTER_KEY: "DEEP_DRTHANDS_2025",
+    VERSION: "2.0.1"
 };
 
 const appState = {
@@ -14,32 +15,6 @@ const appState = {
     userData: null,
     pactAccepted: false
 };
-
-// En la parte superior del archivo, añade esto después de las configuraciones:
-if (typeof initAdvancedPatreonEffects !== 'function') {
-    window.initAdvancedPatreonEffects = function() {
-        console.log('Efectos avanzados de Patreon inicializados');
-        // Tu código de efectos para Patreon iría aquí
-    };
-}
-
-// En la función showSection, actualiza el caso 'patreon':
-case 'patreon':
-    if (typeof loadPatreonSection === 'function') {
-        console.log('Cargando sección de Patreon...');
-        // Limpiar sección primero
-        const patreonSection = document.getElementById('patreon');
-        if (patreonSection) {
-            patreonSection.innerHTML = '';
-        }
-        // Cargar sección
-        loadPatreonSection();
-    } else {
-        console.error('loadPatreonSection no está definida');
-        // Crear contenido básico como fallback
-        createFallbackPatreon();
-    }
-    break;
 
 // Función optimizada para mostrar secciones con carga dinámica
 function showSection(sectionId) {
@@ -174,7 +149,7 @@ function createFallbackDownloads() {
     // Cargar información de descargas
     const downloadsSection = document.getElementById('downloads');
     if (!downloadsSection) return;
-    
+
     downloadsSection.innerHTML = `
         <div class="cyber-card p-6 md:p-8">
             <div class="flex items-center mb-6">
@@ -207,8 +182,7 @@ function createFallbackDownloads() {
                     </button>
                 </div>
                 
-                <div id="downloadStatus">
-		</div> 
+                <div id="downloadStatus"></div> 
                 
                 <!-- Instrucciones -->
                 <div class="mt-6 pt-4 border-t border-green-900/30">
@@ -246,76 +220,141 @@ function createFallbackDownloads() {
                     </div>
                 </div>
             </div>
-         
-           
+        </div>
     `;
     
     // Re-aplicar idioma
     applyLanguage(appState.currentLang);
     
-    // Re-configurar event listener para el botón de descarga
-    document.getElementById('downloadApk')?.addEventListener('click', downloadAPK);
+    // ESPERAR a que el DOM actualice antes de asignar el event listener
+    setTimeout(() => {
+        const downloadBtn = document.getElementById('downloadApk');
+        
+        if (downloadBtn) {
+            console.log('Botón encontrado, asignando event listener...');
+            
+            // Remover cualquier listener anterior
+            downloadBtn.replaceWith(downloadBtn.cloneNode(true));
+            
+            // Obtener el nuevo botón clonado
+            const newDownloadBtn = document.getElementById('downloadApk');
+            
+            // Asignar el event listener correctamente
+            newDownloadBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Botón de descarga clickeado');
+                downloadAPK();
+            });
+            
+            // También añadir un atributo onclick como backup
+            newDownloadBtn.setAttribute('onclick', 'downloadAPK(); return false;');
+            
+            console.log('Event listener asignado exitosamente');
+        } else {
+            console.error('ERROR: Botón downloadApk no encontrado en el DOM');
+            
+            // Debug: mostrar todos los botones en la sección
+            const allButtons = downloadsSection.querySelectorAll('button');
+            console.log('Botones encontrados en la sección:', allButtons.length);
+            allButtons.forEach((btn, index) => {
+                console.log(`Botón ${index}:`, btn.id, btn.className);
+            });
+        }
+    }, 50); // Pequeño delay para asegurar que el DOM se haya actualizado
 }
-// Función para descargar APK (actualizada)
+
+// Función para descargar APK (versión corregida)
 function downloadAPK() {
-    // URL del APK (usando la ruta relativa que indicaste)
     const apkUrl = './downloads/deepirc_v0.2.1.rar';
+    const fileName = 'deepirc_v0.2.1.rar';
     
-    // Mostrar mensaje de confirmación
-    if (confirm('¿Descargar DeepIRC v0.2.1 APK (26.5 MB)?\n\nRecuerda activar "Fuentes desconocidas" en tu dispositivo Android.')) {
-        // Crear enlace temporal para descarga
-        const downloadLink = document.createElement('a');
-        downloadLink.href = apkUrl;
-        downloadLink.download = 'deepirc_v0.2.1.rar'; // Nombre del archivo descargado
+    const confirmMessage = `¿Descargar DeepIRC v0.2.1?
+
+📦 Archivo: ${fileName}
+📱 Android APK (comprimido)
+⚠️ IMPORTANTE:
+1. Activa "Fuentes desconocidas" en Android
+2. Extrae el archivo .rar antes de instalar
+3. Verifica el hash SHA-256 después de descargar
+
+¿Continuar con la descarga?`;
+    
+    if (confirm(confirmMessage)) {
+        console.log('Iniciando descarga de:', apkUrl);
         
-        // Añadir event listener para manejar errores
-        downloadLink.addEventListener('click', function(e) {
-            // Verificar si el archivo existe
-            fetch(apkUrl, { method: 'HEAD' })
-                .then(response => {
-                    if (!response.ok) {
-                        e.preventDefault();
-                        alert('Error: El archivo de descarga no está disponible.\n\nVerifica que el archivo exista en: ./downloads/deepirc_v0.2.1.rar');
-                        return false;
-                    }
-                    return true;
-                })
-                .catch(error => {
-                    e.preventDefault();
-                    alert('Error al acceder al archivo. Verifica la ruta del archivo.');
-                    console.error('Error de descarga:', error);
-                });
-        });
+        // Crear enlace temporal
+        const link = document.createElement('a');
+        link.href = apkUrl;
+        link.download = fileName;
+        link.style.display = 'none';
         
-        // Añadir al DOM y hacer click
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
+        // Añadir al DOM
+        document.body.appendChild(link);
+        
+        // Intentar descargar
+        link.click();
+        
+        // Limpiar después
+        setTimeout(() => {
+            document.body.removeChild(link);
+        }, 100);
         
         // Mostrar mensaje de éxito
         const status = document.getElementById('downloadStatus');
         if (status) {
             status.innerHTML = `
-                <div class="cyber-status p-4 mt-4 border border-green-500/30 bg-green-900/10">
+                <div class="download-success p-4 mt-4 border border-green-500 rounded-lg bg-green-900/20">
                     <div class="flex items-center">
-                        <i class="fas fa-download text-green-400 mr-3 animate-pulse"></i>
+                        <i class="fas fa-download text-green-400 mr-3 text-xl"></i>
                         <div>
-                            <strong class="text-green-300">DESCARGA INICIADA</strong>
-                            <p class="text-sm mt-1 text-green-400/80">
-                                Si la descarga no comienza automáticamente, <a href="${apkUrl}" download class="underline">haz clic aquí</a>
+                            <h4 class="font-bold text-green-300">Descarga iniciada</h4>
+                            <p class="text-sm text-green-400/80 mt-1">
+                                Archivo: <strong>${fileName}</strong>
                             </p>
+                            <p class="text-xs text-green-600 mt-2">
+                                Si la descarga no comienza, 
+                                <a href="${apkUrl}" download="${fileName}" 
+                                   class="underline text-green-400 ml-1" 
+                                   onclick="event.stopPropagation();">
+                                   haz clic aquí
+                                </a>
+                            </p>
+                            <div class="mt-3 p-2 bg-black/30 rounded text-xs">
+                                <p class="text-yellow-400 mb-1">⚠️ Nota: Archivo comprimido .rar</p>
+                                <p class="text-green-400/70">Necesitarás WinRAR, 7-Zip o similar para extraer el APK</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             `;
             
-            // Eliminar el mensaje después de 10 segundos
+            // Añadir event listener al enlace alternativo
+            setTimeout(() => {
+                const altLink = status.querySelector('a');
+                if (altLink) {
+                    altLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const tempLink = document.createElement('a');
+                        tempLink.href = apkUrl;
+                        tempLink.download = fileName;
+                        document.body.appendChild(tempLink);
+                        tempLink.click();
+                        document.body.removeChild(tempLink);
+                    });
+                }
+            }, 100);
+            
+            // Auto-eliminar después de 10 segundos
             setTimeout(() => {
                 status.innerHTML = '';
             }, 10000);
         }
     }
 }
+
+
+
 
 function createFallbackPatreon() {
     const patreonSection = document.getElementById('patreon');
