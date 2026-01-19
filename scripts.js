@@ -145,6 +145,8 @@ function showSection(sectionId) {
 }
 
 // Funciones fallback para cuando las funciones específicas no estén disponibles
+// Reemplaza la función createFallbackDownloads() completa con esta versión corregida:
+
 function createFallbackDownloads() {
     // Cargar información de descargas
     const downloadsSection = document.getElementById('downloads');
@@ -176,13 +178,13 @@ function createFallbackDownloads() {
                             <span data-i18n="downloads.security">Verificado: SHA-256</span>
                         </div>
                     </div>
-                    <button id="downloadApk" class="cyber-button mt-4 md:mt-0 px-6 py-3">
+                    <button onclick="window.downloadAPK()" class="cyber-button mt-4 md:mt-0 px-6 py-3">
                         <i class="fas fa-download mr-2"></i>
                         <span data-i18n="downloads.button">DESCARGAR APK</span>
                     </button>
                 </div>
                 
-                <div id="downloadStatus"></div> 
+                <div id="downloadStatus"></div>
                 
                 <!-- Instrucciones -->
                 <div class="mt-6 pt-4 border-t border-green-900/30">
@@ -225,45 +227,9 @@ function createFallbackDownloads() {
     
     // Re-aplicar idioma
     applyLanguage(appState.currentLang);
-    
-    // ESPERAR a que el DOM actualice antes de asignar el event listener
-    setTimeout(() => {
-        const downloadBtn = document.getElementById('downloadApk');
-        
-        if (downloadBtn) {
-            console.log('Botón encontrado, asignando event listener...');
-            
-            // Remover cualquier listener anterior
-            downloadBtn.replaceWith(downloadBtn.cloneNode(true));
-            
-            // Obtener el nuevo botón clonado
-            const newDownloadBtn = document.getElementById('downloadApk');
-            
-            // Asignar el event listener correctamente
-            newDownloadBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Botón de descarga clickeado');
-                downloadAPK();
-            });
-            
-            // También añadir un atributo onclick como backup
-            newDownloadBtn.setAttribute('onclick', 'downloadAPK(); return false;');
-            
-            console.log('Event listener asignado exitosamente');
-        } else {
-            console.error('ERROR: Botón downloadApk no encontrado en el DOM');
-            
-            // Debug: mostrar todos los botones en la sección
-            const allButtons = downloadsSection.querySelectorAll('button');
-            console.log('Botones encontrados en la sección:', allButtons.length);
-            allButtons.forEach((btn, index) => {
-                console.log(`Botón ${index}:`, btn.id, btn.className);
-            });
-        }
-    }, 50); // Pequeño delay para asegurar que el DOM se haya actualizado
 }
-
+    
+  
 // Función para descargar APK (versión corregida)
 function downloadAPK() {
     const apkUrl = './downloads/deepirc_v0.2.1.rar';
