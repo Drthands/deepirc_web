@@ -90,7 +90,7 @@ function setupNavigation() {
                     loadDownloadsInfo();
                 }
                  if (hash === 'patreon') {
-                    loadPatreonSection();
+                    loadPatreonInfo();
                 }
             }, 100);
         }
@@ -577,7 +577,7 @@ function setupEventListeners() {
                 setTimeout(() => loadDownloadsInfo(), 100);
             }
             if (section === 'patreon') {
-                setTimeout(() => loadPatreonInfo(), 100);
+                setTimeout(() => loadPatreonSection(), 100);
             }
         });
     });
