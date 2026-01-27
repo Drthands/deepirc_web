@@ -355,11 +355,9 @@ async function processNormalToken(code, status) {
                 nick: urlParams.get('nick') || 'Anon',
                 email: urlParams.get('email') || '',
                 is_premium: (urlParams.get('plan') === 'premium'),
-                plan_type: urlParams.get('plan') || 'free',
                 pacto_aceptado: true,
                 created_at: new Date().toISOString(),
                 last_access: new Date().toISOString(),
-                registration_source: 'web_direct'
             })
             .select();
 
