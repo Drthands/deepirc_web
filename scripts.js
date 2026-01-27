@@ -232,8 +232,8 @@ function createFallbackDownloads() {
   
 // Función para descargar APK (versión corregida)
 function downloadAPK() {
-    const apkUrl = './downloads/deepirc_v0.2.1.rar';
-    const fileName = 'deepirc_v0.2.1.rar';
+    const apkUrl = './downloads/app-debug-androidTest.apk';
+    const fileName = 'app-debug-androidTest.apk';
     
     const confirmMessage = `¿Descargar DeepIRC v0.2.1?
 
