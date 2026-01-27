@@ -298,11 +298,9 @@ async function processPendingRegistration(code, status) {
                 nick: appState.registrationData.nick,
                 email: appState.registrationData.email,
                 is_premium: (appState.registrationData.plan === 'premium'),
-                plan_type: appState.registrationData.plan,
                 pacto_aceptado: true,
                 created_at: new Date().toISOString(),
                 last_access: new Date().toISOString(),
-                registration_source: 'mobile_app'
             })
             .select();
 
