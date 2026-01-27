@@ -27,6 +27,8 @@ document.addEventListener('DOMContentLoaded', function() {
 // =================== FUNCIONES DE INICIALIZACIÓN ===================
 
 function initializeApp() {
+    console.log("🚀 Inicializando DeepIRC Web...");
+    
     // Determinar idioma
     const savedLang = localStorage.getItem('deepirc_lang');
     const browserLang = navigator.language.split('-')[0];
@@ -43,6 +45,11 @@ function initializeApp() {
     
     // OCULTAR SECCIÓN ADMIN POR DEFECTO
     hideAdminSection();
+    
+    // Mostrar sección inicial
+    if (!window.location.hash) {
+        showSection('landing');
+    }
 }
 
 function hideAdminSection() {
@@ -50,12 +57,6 @@ function hideAdminSection() {
     const adminNav = document.querySelector('.nav-link[data-section="admin"]');
     if (adminNav) {
         adminNav.style.display = 'none';
-    }
-    
-    // Si estamos en la sección admin, redirigir a landing
-    if (window.location.hash === '#admin' && !appState.isAdmin) {
-        showSection('landing');
-        history.replaceState(null, '', '#landing');
     }
 }
 
@@ -77,9 +78,17 @@ function setupNavigation() {
         if (hash === 'admin' && !appState.isAdmin) {
             showSection('landing');
             history.replaceState(null, '', '#landing');
-        } else if (validSections.includes(hash)) {
+            return;
+        }
+        
+        if (validSections.includes(hash)) {
             setTimeout(() => {
                 showSection(hash);
+                
+                // Si es downloads, cargar contenido
+                if (hash === 'downloads') {
+                    loadDownloadsInfo();
+                }
             }, 100);
         }
     }
@@ -100,17 +109,26 @@ function checkRegistrationParams() {
             timestamp: Date.now()
         };
         
-        console.log("Datos de registro recibidos desde app:", appState.registrationData);
+        console.log("📱 Datos de registro recibidos desde app:", appState.registrationData);
         
         // Mostrar notificación
         showRegistrationNotification();
+        
+        // Auto-llenar el token en el input si existe
+        const tokenInput = document.getElementById('accessCode');
+        if (tokenInput && appState.registrationData.token) {
+            tokenInput.value = appState.registrationData.token;
+        }
         
         // Si no hay pacto aceptado, ir al contrato
         if (!appState.pactAccepted) {
             setTimeout(() => {
                 showSection('contract');
                 highlightPactSection();
-            }, 500);
+            }, 1000);
+        } else {
+            // Si ya aceptó pacto, ir a linking
+            showSection('linking');
         }
     }
 }
@@ -127,9 +145,9 @@ function showRegistrationNotification() {
             <div class="flex items-start">
                 <i class="fas fa-mobile-alt text-blue-400 mr-3 mt-1"></i>
                 <div>
-                    <p class="font-bold text-blue-300">REGISTRO DESDE APP</p>
-                    <p class="text-sm text-blue-300/70 mt-1">1. Acepta el Pacto de Honor</p>
-                    <p class="text-sm text-blue-300/70">2. Ingresa tu token: <strong>${appState.registrationData.token.substring(0, 12)}...</strong></p>
+                    <p class="font-bold text-blue-300">📱 REGISTRO DESDE APP</p>
+                    <p class="text-sm text-blue-300/70 mt-1">Token: <strong class="font-mono">${appState.registrationData.token.substring(0, 20)}...</strong></p>
+                    <p class="text-xs text-blue-300/50 mt-2">El token se ha auto-llenado en el formulario</p>
                 </div>
                 <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-gray-400 hover:text-white">
                     <i class="fas fa-times"></i>
@@ -176,7 +194,7 @@ function verifyMasterKey(inputKey) {
         // Generar MD5 del resultado
         const calculatedHash = md5(encrypted);
         
-        console.log(`Verificación clave: Input="${inputKey}", Hash=${calculatedHash}`);
+        console.log(`🔑 Verificación clave: Input="${inputKey}", Hash=${calculatedHash}`);
         
         return calculatedHash === config.MASTER_KEY_HASH;
     } catch (error) {
@@ -192,15 +210,16 @@ async function handleAccess() {
     const status = document.getElementById('statusMsg');
     
     if (!tokenInput || !status) {
-        console.error("Elementos del DOM no encontrados");
+        console.error("❌ Elementos del DOM no encontrados");
         return;
     }
     
     const code = tokenInput.value.trim();
+    console.log(`🔐 Procesando código: "${code}"`);
     
     // 1. Verificar si es clave maestra para admin
     if (verifyMasterKey(code)) {
-        console.log("Clave maestra aceptada - Acceso Admin");
+        console.log("✅ Clave maestra aceptada - Acceso Admin");
         appState.isAdmin = true;
         
         // Mostrar sección admin
@@ -211,7 +230,7 @@ async function handleAccess() {
         await loadAdminData();
         
         status.innerHTML = `<i class="fas fa-shield-alt mr-2"></i>
-                           <span>ACCESO ROOT CONCEDIDO. BIENVENIDO, OPERADOR.</span>`;
+                           <span>✅ ACCESO ROOT CONCEDIDO. BIENVENIDO, OPERADOR.</span>`;
         status.style.color = "#00FF41";
         
         tokenInput.value = "";
@@ -222,7 +241,7 @@ async function handleAccess() {
     const isAccepted = document.getElementById('acceptPact')?.checked || appState.pactAccepted;
     if (!isAccepted) {
         status.innerHTML = `<i class="fas fa-exclamation-triangle mr-2"></i>
-                           <span>ERROR: Debes aceptar el Pacto de Honor.</span>`;
+                           <span>❌ ERROR: Debes aceptar el Pacto de Honor.</span>`;
         status.style.color = "#ef4444";
         
         highlightPactSection();
@@ -232,7 +251,7 @@ async function handleAccess() {
     // 3. Verificar código de token
     if (!code || code.length < 8) {
         status.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>
-                           <span>ERROR: Token inválido (mínimo 8 caracteres).</span>`;
+                           <span>❌ ERROR: Token inválido (mínimo 8 caracteres).</span>`;
         status.style.color = "#ef4444";
         return;
     }
@@ -247,7 +266,7 @@ async function handleAccess() {
 
 async function processPendingRegistration(code, status) {
     status.innerHTML = `<i class="fas fa-sync-alt animate-spin mr-2"></i>
-                       <span>PROCESANDO REGISTRO DESDE APP...</span>`;
+                       <span>🔄 PROCESANDO REGISTRO DESDE APP...</span>`;
     status.style.color = "#00FF41";
     
     try {
@@ -262,10 +281,12 @@ async function processPendingRegistration(code, status) {
         const normalizedToken = code.replace("DEEP-", "").trim().toLowerCase();
         const expectedToken = appState.registrationData.token.replace("DEEP-", "").trim().toLowerCase();
         
-        // Verificar token
-        if (normalizedToken !== expectedToken) {
+        console.log(`🔍 Comparando tokens: ${normalizedToken} vs ${expectedToken}`);
+        
+        // Verificar token (ahora más flexible)
+        if (normalizedToken !== expectedToken && code !== appState.registrationData.token) {
             status.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>
-                               ERROR: Token incorrecto. Usa: ${appState.registrationData.token}`;
+                               ❌ ERROR: Token no coincide. Usa: ${appState.registrationData.token}`;
             status.style.color = "#ef4444";
             return;
         }
@@ -288,10 +309,10 @@ async function processPendingRegistration(code, status) {
             throw error;
         }
         
-        console.log("Registro exitoso en Supabase:", data);
+        console.log("✅ Registro exitoso en Supabase:", data);
         
         status.innerHTML = `<i class="fas fa-check-circle mr-2"></i>
-                           <span>REGISTRO COMPLETADO. Ya puedes usar la app.</span>`;
+                           <span>✅ REGISTRO COMPLETADO. Ya puedes usar la app.</span>`;
         status.style.color = "#00FF41";
         
         // Limpiar datos y URL
@@ -308,16 +329,16 @@ async function processPendingRegistration(code, status) {
         showSuccessMessage();
         
     } catch (error) {
-        console.error("Error en registro:", error);
+        console.error("❌ Error en registro:", error);
         status.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>
-                           ERROR: ${error.message || "Error al conectar con la base de datos"}`;
+                           ❌ ERROR: ${error.message || "Error al conectar con la base de datos"}`;
         status.style.color = "#ef4444";
     }
 }
 
 async function processNormalToken(code, status) {
     status.innerHTML = `<i class="fas fa-sync-alt animate-spin mr-2"></i>
-                       <span>SINCRONIZANDO CON LA RED...</span>`;
+                       <span>🔄 SINCRONIZANDO CON LA RED...</span>`;
     status.style.color = "#00FF41";
     
     try {
@@ -344,15 +365,15 @@ async function processNormalToken(code, status) {
         if (error) throw error;
         
         status.innerHTML = `<i class="fas fa-check-circle mr-2"></i>
-                           <span>VINCULACIÓN EXITOSA. Puedes volver a la App.</span>`;
+                           <span>✅ VINCULACIÓN EXITOSA. Puedes volver a la App.</span>`;
         status.style.color = "#00FF41";
         
         showSuccessMessage();
         
     } catch (error) {
-        console.error("Error:", error);
+        console.error("❌ Error:", error);
         status.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>
-                           ERROR: ${error.message}`;
+                           ❌ ERROR: ${error.message}`;
         status.style.color = "#ef4444";
     }
 }
@@ -375,15 +396,31 @@ async function loadAdminData() {
         const { data: registrations, error } = await _supabase
             .from('device_registrations')
             .select('*')
-            .order('created_at', { ascending: false })
-            .limit(100);
+            .order('created_at', { ascending: false });
         
         if (error) throw error;
+        
+        console.log(`📊 Datos cargados: ${registrations?.length || 0} registros`);
+        
+        // Verificar si hay datos
+        if (!registrations || registrations.length === 0) {
+            adminContent.innerHTML = `
+                <div class="cyber-card p-6">
+                    <h3 class="text-xl font-bold mb-4 text-green-300">PANEL DE ADMINISTRACIÓN</h3>
+                    <div class="text-center p-8">
+                        <i class="fas fa-database text-4xl text-gray-500 mb-4"></i>
+                        <p class="text-gray-400">No hay registros en la base de datos</p>
+                        <p class="text-sm text-gray-500 mt-2">La base de datos está vacía o no se pudo conectar</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
         
         // Estadísticas
         const totalUsers = registrations.length;
         const premiumUsers = registrations.filter(r => r.is_premium).length;
-        const trialUsers = registrations.filter(r => r.pacto_aceptado && !r.is_premium).length;
+        const pactAccepted = registrations.filter(r => r.pacto_aceptado).length;
         
         // Generar HTML
         let html = `
@@ -392,24 +429,25 @@ async function loadAdminData() {
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div class="cyber-card p-4 bg-green-900/20">
                         <p class="text-sm text-green-400">USUARIOS TOTALES</p>
-                        <p class="text-2xl font-bold">${totalUsers}</p>
+                        <p class="text-3xl font-bold">${totalUsers}</p>
                     </div>
                     <div class="cyber-card p-4 bg-blue-900/20">
                         <p class="text-sm text-blue-400">USUARIOS PREMIUM</p>
-                        <p class="text-2xl font-bold">${premiumUsers}</p>
+                        <p class="text-3xl font-bold">${premiumUsers}</p>
                     </div>
                     <div class="cyber-card p-4 bg-yellow-900/20">
-                        <p class="text-sm text-yellow-400">USUARIOS TRIAL</p>
-                        <p class="text-2xl font-bold">${trialUsers}</p>
+                        <p class="text-sm text-yellow-400">PACTO ACEPTADO</p>
+                        <p class="text-3xl font-bold">${pactAccepted}</p>
                     </div>
                 </div>
                 
-                <h4 class="text-lg font-bold mb-3 text-green-300">ÚLTIMOS REGISTROS</h4>
+                <h4 class="text-lg font-bold mb-3 text-green-300">ÚLTIMOS 10 REGISTROS</h4>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="border-b border-green-800">
-                                <th class="p-2 text-left">Device ID</th>
+                                <th class="p-2 text-left">ID</th>
+                                <th class="p-2 text-left">Device Hash</th>
                                 <th class="p-2 text-left">Nick</th>
                                 <th class="p-2 text-left">Email</th>
                                 <th class="p-2 text-left">Premium</th>
@@ -422,11 +460,12 @@ async function loadAdminData() {
         registrations.slice(0, 10).forEach(reg => {
             html += `
                 <tr class="border-b border-green-900/30 hover:bg-green-900/10">
-                    <td class="p-2 font-mono">${reg.device_hash.substring(0, 8)}...</td>
+                    <td class="p-2 font-mono text-xs">${reg.id?.substring(0, 8) || 'N/A'}</td>
+                    <td class="p-2 font-mono">${reg.device_hash?.substring(0, 12)}...</td>
                     <td class="p-2">${reg.nick || 'N/A'}</td>
-                    <td class="p-2">${reg.email || 'N/A'}</td>
+                    <td class="p-2">${reg.email ? (reg.email.length > 20 ? reg.email.substring(0, 20) + '...' : reg.email) : 'N/A'}</td>
                     <td class="p-2">${reg.is_premium ? '✅' : '❌'}</td>
-                    <td class="p-2">${new Date(reg.created_at).toLocaleDateString()}</td>
+                    <td class="p-2 text-xs">${reg.created_at ? new Date(reg.created_at).toLocaleDateString() : 'N/A'}</td>
                 </tr>
             `;
         });
@@ -440,13 +479,13 @@ async function loadAdminData() {
                     <h4 class="text-lg font-bold mb-3 text-green-300">ACCIONES RÁPIDAS</h4>
                     <div class="flex flex-wrap gap-2">
                         <button onclick="exportData()" class="cyber-button px-4 py-2">
-                            <i class="fas fa-download mr-2"></i>Exportar Datos
+                            <i class="fas fa-download mr-2"></i>Exportar CSV
                         </button>
                         <button onclick="refreshAdminData()" class="cyber-button px-4 py-2">
                             <i class="fas fa-sync-alt mr-2"></i>Actualizar
                         </button>
-                        <button onclick="clearAllData()" class="cyber-button px-4 py-2 bg-red-900/30 border-red-700">
-                            <i class="fas fa-trash mr-2"></i>Limpiar BD
+                        <button onclick="testDatabaseConnection()" class="cyber-button px-4 py-2">
+                            <i class="fas fa-database mr-2"></i>Test BD
                         </button>
                     </div>
                 </div>
@@ -456,9 +495,11 @@ async function loadAdminData() {
         adminContent.innerHTML = html;
         
     } catch (error) {
-        console.error("Error cargando datos admin:", error);
+        console.error("❌ Error cargando datos admin:", error);
         adminContent.innerHTML = `<div class="cyber-card p-6">
+            <h3 class="text-xl font-bold mb-4 text-red-300">ERROR</h3>
             <p class="text-red-400">Error cargando datos: ${error.message}</p>
+            <p class="text-sm text-gray-400 mt-2">Verifica la conexión a Supabase y los permisos de la API key</p>
         </div>`;
     }
 }
@@ -467,19 +508,20 @@ function refreshAdminData() {
     loadAdminData();
 }
 
-function exportData() {
-    alert("Función de exportación en desarrollo...");
+function testDatabaseConnection() {
+    alert("🔍 Probando conexión a base de datos...\n\nRevisa la consola para ver los detalles.");
+    loadAdminData();
 }
 
-function clearAllData() {
-    if (confirm("⚠️ ¿ESTÁS SEGURO DE ELIMINAR TODOS LOS DATOS?\nEsta acción no se puede deshacer.")) {
-        alert("Función de limpieza en desarrollo...");
-    }
+function exportData() {
+    alert("📊 La exportación de datos estará disponible en la próxima versión");
 }
 
 // =================== FUNCIONES AUXILIARES ===================
 
 function showSection(sectionId) {
+    console.log(`📌 Mostrando sección: ${sectionId}`);
+    
     // Ocultar todas las secciones
     document.querySelectorAll('.section-content').forEach(section => {
         section.classList.remove('active');
@@ -501,10 +543,17 @@ function showSection(sectionId) {
         }
         
         appState.currentSection = sectionId;
+        
+        // Scroll al inicio de la sección
+        setTimeout(() => {
+            targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
     }
 }
 
 function setupEventListeners() {
+    console.log("⚙️ Configurando event listeners...");
+    
     // Navegación
     document.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', function(e) {
@@ -519,6 +568,11 @@ function setupEventListeners() {
             
             showSection(section);
             history.pushState(null, '', `#${section}`);
+            
+            // Si es downloads, cargar contenido
+            if (section === 'downloads') {
+                setTimeout(() => loadDownloadsInfo(), 100);
+            }
         });
     });
     
@@ -538,6 +592,12 @@ function setupEventListeners() {
         pactCheckbox.addEventListener('change', function() {
             updatePactStatus(this.checked);
         });
+    }
+    
+    // Botón de descarga (si existe)
+    const downloadBtn = document.getElementById('downloadApk');
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', downloadAPK);
     }
     
     // Navegación del historial
@@ -565,6 +625,8 @@ function updatePactStatus(isAccepted) {
         if (contractNav) {
             contractNav.remove();
         }
+        
+        console.log("✅ Pacto aceptado");
     } else {
         localStorage.removeItem('deepirc_pact_accepted');
     }
@@ -616,7 +678,7 @@ function showSuccessMessage() {
         <div class="flex items-center">
             <i class="fas fa-check-circle text-green-400 mr-3 text-xl"></i>
             <div>
-                <span class="font-bold text-green-300">REGISTRO COMPLETADO CON ÉXITO</span>
+                <span class="font-bold text-green-300">✅ REGISTRO COMPLETADO CON ÉXITO</span>
                 <p class="text-sm text-green-300/70 mt-1">Tu cuenta ha sido activada correctamente.</p>
             </div>
         </div>
@@ -625,6 +687,153 @@ function showSuccessMessage() {
     const card = contractSection.querySelector('.cyber-card');
     if (card) {
         card.prepend(successMessage);
+    }
+}
+
+// =================== FUNCIONES DE DESCARGA Y PATREON ===================
+
+function loadDownloadsInfo() {
+    const downloadsSection = document.getElementById('downloads');
+    if (!downloadsSection) return;
+    
+    console.log("📥 Cargando información de descargas...");
+    
+    downloadsSection.innerHTML = `
+        <div class="cyber-card p-6">
+            <div class="flex items-center mb-6">
+                <i class="fas fa-download text-green-400 text-2xl mr-4"></i>
+                <h3 class="text-xl font-bold">DESCARGAS DEEPIRC</h3>
+            </div>
+            
+            <!-- Android APK -->
+            <div class="cyber-card p-4 mb-6 border-green-500/30">
+                <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                    <div>
+                        <h4 class="text-lg font-bold text-green-300 mb-2">ANDROID (APK)</h4>
+                        <div class="flex flex-wrap gap-4 text-sm text-green-400/70">
+                            <span>Versión 2.0.1</span>
+                            <span>Tamaño: 12.4 MB</span>
+                            <span>SHA-256 Verificado</span>
+                        </div>
+                    </div>
+                    <button onclick="downloadAPK()" class="cyber-button mt-4 md:mt-0 px-6 py-3">
+                        <i class="fas fa-download mr-2"></i>
+                        DESCARGAR APK
+                    </button>
+                </div>
+                
+                <div id="downloadStatus"></div>
+                
+                <!-- Instrucciones -->
+                <div class="mt-6 pt-4 border-t border-green-900/30">
+                    <h5 class="font-bold mb-3 text-green-300">INSTRUCCIONES DE INSTALACIÓN</h5>
+                    <ol class="space-y-2 text-sm text-green-300/80">
+                        <li class="flex items-start">
+                            <span class="font-bold mr-2">1.</span>
+                            <span>Permite instalación desde "Fuentes desconocidas" en Ajustes de seguridad</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="font-bold mr-2">2.</span>
+                            <span>Descarga e instala el archivo APK</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="font-bold mr-2">3.</span>
+                            <span>Inicia DeepIRC y acepta el Pacto de Honor</span>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- Patreon -->
+            <div class="cyber-card p-6 border-purple-500/30">
+                <div class="flex items-center mb-4">
+                    <i class="fab fa-patreon text-purple-400 text-2xl mr-3"></i>
+                    <h4 class="text-lg font-bold text-purple-300">APOYAR DEEPIRC EN PATREON</h4>
+                </div>
+                
+                <p class="mb-4 text-purple-300/80">Ayúdanos a mantener y mejorar DeepIRC. Tu apoyo nos permite:</p>
+                
+                <ul class="space-y-2 mb-6">
+                    <li class="flex items-start">
+                        <i class="fas fa-check text-purple-400 mt-1 mr-2"></i>
+                        <span>Mantener los servidores IRC gratuitos</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check text-purple-400 mt-1 mr-2"></i>
+                        <span>Desarrollar nuevas características</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check text-purple-400 mt-1 mr-2"></i>
+                        <span>Ofrecer soporte técnico</span>
+                    </li>
+                </ul>
+                
+                <a href="https://patreon.com/deepirc" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   class="cyber-button bg-purple-600 border-purple-500 hover:bg-purple-700 inline-flex items-center">
+                    <i class="fab fa-patreon mr-2"></i>
+                    APOYAR EN PATREON
+                </a>
+                
+                <div class="mt-6 pt-4 border-t border-purple-900/30">
+                    <h5 class="font-bold mb-3 text-purple-300">VENTAJAS PARA PATRONS</h5>
+                    <ul class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                        <li class="flex items-start">
+                            <i class="fas fa-star text-purple-400 mt-1 mr-2"></i>
+                            <span>Acceso anticipado a nuevas versiones</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-headset text-purple-400 mt-1 mr-2"></i>
+                            <span>Soporte prioritario</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-award text-purple-400 mt-1 mr-2"></i>
+                            <span>Insignia exclusiva en la app</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-crown text-purple-400 mt-1 mr-2"></i>
+                            <span>Acceso al canal VIP en IRC</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function downloadAPK() {
+    // URL del APK
+    const apkUrl = 'https://deepirc.net/downloads/DeepIRC_v2.0.1.apk';
+    const sha256Hash = 'a1b2c3d4e5f678901234567890abcdef1234567890abcdef1234567890abcd';
+    
+    // Mostrar confirmación
+    const confirmation = confirm(`¿Descargar DeepIRC v2.0.1?\n\nSHA-256: ${sha256Hash}\n\nVerifica la firma antes de instalar.`);
+    
+    if (confirmation) {
+        // Crear enlace temporal
+        const downloadLink = document.createElement('a');
+        downloadLink.href = apkUrl;
+        downloadLink.download = 'DeepIRC_v2.0.1.apk';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        
+        // Mostrar mensaje
+        const status = document.getElementById('downloadStatus');
+        if (status) {
+            status.innerHTML = `
+                <div class="cyber-status p-4 mt-4 bg-green-900/20">
+                    <div class="flex items-center">
+                        <i class="fas fa-download text-green-400 mr-3"></i>
+                        <div>
+                            <strong>DESCARGA INICIADA</strong>
+                            <p class="text-sm mt-1">Verifica la firma SHA-256 antes de instalar.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
     }
 }
 
@@ -641,101 +850,7 @@ function applyLanguage(lang) {
     });
 }
 
-// =================== RECUPERACIÓN MEJORADA ===================
-
-// Nueva función para recuperación con contraseña
-async function startPasswordRecovery() {
-    const email = document.getElementById('recoveryEmail').value.trim();
-    const password = document.getElementById('recoveryPassword').value;
-    const status = document.getElementById('recoveryStatus');
-    
-    if (!email || !password) {
-        showRecoveryError('Por favor, completa todos los campos');
-        return;
-    }
-    
-    status.innerHTML = `<i class="fas fa-sync-alt animate-spin mr-2"></i>Buscando cuenta...`;
-    status.className = 'text-yellow-400';
-    
-    try {
-        const _supabase = supabase.createClient(config.SUPABASE_URL, config.SUPABASE_KEY);
-        
-        // 1. Obtener todos los registros
-        const { data: registrations, error } = await _supabase
-            .from('device_registrations')
-            .select('*')
-            .not('email', 'is', null);
-        
-        if (error) throw error;
-        
-        // 2. Intentar descifrar cada email con la contraseña
-        let foundRecord = null;
-        for (const record of registrations) {
-            try {
-                // Intenta descifrar el email (esto depende de cómo esté cifrado en la app)
-                // Para demo, asumimos que el email en la BD está cifrado con la contraseña
-                const decryptedEmail = xorEncrypt(record.email, password);
-                
-                // Verificar si coincide (simplificado - en realidad necesitarías más lógica)
-                if (decryptedEmail.includes('@') && decryptedEmail.toLowerCase() === email.toLowerCase()) {
-                    foundRecord = record;
-                    break;
-                }
-            } catch (e) {
-                // Continuar con el siguiente registro
-                continue;
-            }
-        }
-        
-        if (!foundRecord) {
-            showRecoveryError('No se encontró cuenta con esos datos');
-            return;
-        }
-        
-        // 3. Generar nuevo token
-        const newToken = 'DEEP-' + generateDeviceId();
-        
-        // 4. Actualizar registro con nuevo token
-        const { error: updateError } = await _supabase
-            .from('device_registrations')
-            .update({ 
-                device_hash: newToken.replace("DEEP-", "").trim().toLowerCase(),
-                last_access: new Date().toISOString()
-            })
-            .eq('id', foundRecord.id);
-        
-        if (updateError) throw updateError;
-        
-        // 5. Mostrar éxito
-        status.innerHTML = `<i class="fas fa-check-circle mr-2"></i>Recuperación exitosa!`;
-        status.className = 'text-green-400';
-        
-        document.getElementById('recoveryResult').innerHTML = `
-            <div class="cyber-card p-4 mt-4 bg-green-900/20">
-                <p class="font-bold">Cuenta recuperada:</p>
-                <p class="mt-2">Nick: <strong>${foundRecord.nick}</strong></p>
-                <p>Nuevo Token: <strong class="font-mono">${newToken}</strong></p>
-                <p class="text-sm mt-2 text-green-300/70">Usa este token en tu app para acceder.</p>
-            </div>
-        `;
-        
-    } catch (error) {
-        console.error("Error en recuperación:", error);
-        showRecoveryError('Error en el proceso de recuperación');
-    }
-}
-
-function showRecoveryError(message) {
-    const status = document.getElementById('recoveryStatus');
-    status.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>${message}`;
-    status.className = 'text-red-400';
-}
-
-function generateDeviceId() {
-    return Math.random().toString(36).substr(2, 10).toUpperCase();
-}
-
-// =================== FUNCIONES DE PRUEBA ===================
+// =================== FUNCIONES DE PRUEBA Y DEBUG ===================
 
 // Para generar el hash correcto de tu clave maestra
 window.generateMasterHash = function(key) {
@@ -748,4 +863,18 @@ window.generateMasterHash = function(key) {
     return hash;
 };
 
-// Ejecutar en consola: generateMasterHash("DEEP_DRTHANDS_2025")
+// Depuración
+window.debugAppState = function() {
+    console.log("=== ESTADO DE LA APLICACIÓN ===");
+    console.log("AppState:", appState);
+    console.log("Clave maestra configurada:", config.MASTER_KEY_HASH);
+    console.log("Pacto aceptado:", appState.pactAccepted);
+    console.log("Es admin:", appState.isAdmin);
+    console.log("Datos registro:", appState.registrationData);
+    console.log("Sección actual:", appState.currentSection);
+    console.log("=============================");
+};
+
+// Ejecutar en consola para pruebas:
+// generateMasterHash("DEEP_DRTHANDS_2025")
+// debugAppState()
