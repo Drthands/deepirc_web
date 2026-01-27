@@ -90,7 +90,7 @@ function setupNavigation() {
                     loadDownloadsInfo();
                 }
                  if (hash === 'patreon') {
-                    patreonInfo();
+                    loadPatreonInfo();
                 }
             }, 100);
         }
@@ -576,6 +576,9 @@ function setupEventListeners() {
             if (section === 'downloads') {
                 setTimeout(() => loadDownloadsInfo(), 100);
             }
+            if (section === 'patreon') {
+                setTimeout(() => loadPatreonInfo(), 100);
+            }
         });
     });
     
@@ -788,7 +791,7 @@ function loadPatreonInfo() {
 
         <div class="cyber-card p-6 md:p-8">
             <div class="flex items-center mb-6">
-                <i class="fas fa-download text-green-400 text-2xl md:text-3xl mr-4"></i>
+                <i class="fas fa-patreon text-green-400 text-2xl md:text-3xl mr-4"></i>
                 <h3 class="text-xl md:text-2xl font-bold section-title">
                     <span data-i18n="downloads.title">>> Visita Patreon</span>
                 </h3>
