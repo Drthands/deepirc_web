@@ -90,7 +90,7 @@ function setupNavigation() {
                     loadDownloadsInfo();
                 }
                  if (hash === 'patreon') {
-                    loadPatreonInfo();
+                    loadPatreonSection();
                 }
             }, 100);
         }
