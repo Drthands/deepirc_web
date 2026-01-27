@@ -72,7 +72,7 @@ function setupNavigation() {
     // Navegación por hash en URL
     if (window.location.hash) {
         const hash = window.location.hash.substring(1);
-        const validSections = ['landing', 'help', 'linking', 'contract', 'admin', 'recovery', 'downloads'];
+        const validSections = ['landing', 'help', 'linking', 'contract', 'admin', 'recovery', 'downloads', 'patreon'];
         
         // Solo mostrar admin si ya está autenticado
         if (hash === 'admin' && !appState.isAdmin) {
@@ -88,6 +88,9 @@ function setupNavigation() {
                 // Si es downloads, cargar contenido
                 if (hash === 'downloads') {
                     loadDownloadsInfo();
+                }
+                 if (hash === 'patreon') {
+                    patreonInfo();
                 }
             }, 100);
         }
@@ -766,6 +769,35 @@ function loadDownloadsInfo() {
                     </div>
                 </div>
             </div>    
+        </div>
+ `;
+ // Re-aplicar idioma
+    applyLanguage(appState.currentLang);
+    
+    // Re-configurar event listener para el botón de descarga
+    document.getElementById('downloadApk')?.addEventListener('click', downloadAPK);
+}
+
+
+
+function loadPatreonInfo() {
+    const patreonSection = document.getElementById('patreon');
+    if (!patreonSection) return;
+    
+    patreonSection.innerHTML = `
+
+        <div class="cyber-card p-6 md:p-8">
+            <div class="flex items-center mb-6">
+                <i class="fas fa-download text-green-400 text-2xl md:text-3xl mr-4"></i>
+                <h3 class="text-xl md:text-2xl font-bold section-title">
+                    <span data-i18n="downloads.title">>> Visita Patreon</span>
+                </h3>
+            </div>
+            
+            <p class="mb-6 text-green-300/80 text-sm md:text-base" data-i18n="patreon.description">
+                Mantente informado de los avances de la aplicacion
+            </p>
+            
               <!-- Patreon -->
             <div class="cyber-card p-4 md:p-6 border-purple-500/30">
                 <div class="flex items-center mb-4">
@@ -815,9 +847,6 @@ function loadDownloadsInfo() {
     `;
  // Re-aplicar idioma
     applyLanguage(appState.currentLang);
-    
-    // Re-configurar event listener para el botón de descarga
-    document.getElementById('downloadApk')?.addEventListener('click', downloadAPK);
 }
 
 
