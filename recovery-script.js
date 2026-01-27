@@ -50,6 +50,26 @@ function setupRecoveryListeners() {
             changeRecoveryLanguage(lang);
         });
     });
+    // Funciones adicionales para recovery.js
+function toggleRecoveryPassword() {
+    const passInput = document.getElementById('recoveryPassword');
+    const icon = passInput.nextElementSibling.querySelector('i');
+    
+    if (passInput.type === 'password') {
+        passInput.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        passInput.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+// Función XOR para descifrado (debe ser idéntica a la de la app)
+function xorDecrypt(text, key) {
+    return xorEncrypt(text, key); // XOR es simétrico
+}
     
     // Auto-avanzar código de verificación
     document.getElementById('verifyCode').addEventListener('input', function(e) {
