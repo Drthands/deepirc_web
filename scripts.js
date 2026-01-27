@@ -692,115 +692,134 @@ function showSuccessMessage() {
 
 // =================== FUNCIONES DE DESCARGA Y PATREON ===================
 
+// Cargar información de descargas
 function loadDownloadsInfo() {
     const downloadsSection = document.getElementById('downloads');
     if (!downloadsSection) return;
     
-    console.log("📥 Cargando información de descargas...");
-    
     downloadsSection.innerHTML = `
-        <div class="cyber-card p-6">
+        <div class="cyber-card p-6 md:p-8">
             <div class="flex items-center mb-6">
-                <i class="fas fa-download text-green-400 text-2xl mr-4"></i>
-                <h3 class="text-xl font-bold">DESCARGAS DEEPIRC</h3>
+                <i class="fas fa-download text-green-400 text-2xl md:text-3xl mr-4"></i>
+                <h3 class="text-xl md:text-2xl font-bold section-title">
+                    <span data-i18n="downloads.title">>> DESCARGAR_DEEPIRC</span>
+                </h3>
             </div>
             
+            <p class="mb-6 text-green-300/80 text-sm md:text-base" data-i18n="downloads.description">
+                Obten la última versión de DeepIRC para tu dispositivo.
+            </p>
+            
             <!-- Android APK -->
-            <div class="cyber-card p-4 mb-6 border-green-500/30">
+            <div class="cyber-card p-4 md:p-6 mb-6 border-green-500/30">
                 <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
                     <div>
-                        <h4 class="text-lg font-bold text-green-300 mb-2">ANDROID (APK)</h4>
+                        <h4 class="text-lg md:text-xl font-bold text-green-300 mb-2" data-i18n="downloads.android">
+                            ANDROID (APK)
+                        </h4>
                         <div class="flex flex-wrap gap-4 text-sm text-green-400/70">
-                            <span>Versión 2.0.1</span>
-                            <span>Tamaño: 12.4 MB</span>
-                            <span>SHA-256 Verificado</span>
+                            <span data-i18n="downloads.version">Versión 2.0.1</span>
+                            <span data-i18n="downloads.size">Tamaño: 12.4 MB</span>
+                            <span data-i18n="downloads.security">Verificado: SHA-256</span>
                         </div>
                     </div>
-                    <button onclick="downloadAPK()" class="cyber-button mt-4 md:mt-0 px-6 py-3">
+                    <button id="downloadApk" class="cyber-button mt-4 md:mt-0 px-6 py-3">
                         <i class="fas fa-download mr-2"></i>
-                        DESCARGAR APK
+                        <span data-i18n="downloads.button">DESCARGAR APK</span>
                     </button>
                 </div>
                 
                 <div id="downloadStatus"></div>
-                
+
                 <!-- Instrucciones -->
                 <div class="mt-6 pt-4 border-t border-green-900/30">
-                    <h5 class="font-bold mb-3 text-green-300">INSTRUCCIONES DE INSTALACIÓN</h5>
+                    <h5 class="font-bold mb-3 text-green-300" data-i18n="downloads.instructions">
+                        INSTRUCCIONES DE INSTALACIÓN
+                    </h5>
                     <ol class="space-y-2 text-sm text-green-300/80">
                         <li class="flex items-start">
                             <span class="font-bold mr-2">1.</span>
-                            <span>Permite instalación desde "Fuentes desconocidas" en Ajustes de seguridad</span>
+                            <span data-i18n="downloads.step1">Permite instalación desde fuentes desconocidas</span>
                         </li>
                         <li class="flex items-start">
                             <span class="font-bold mr-2">2.</span>
-                            <span>Descarga e instala el archivo APK</span>
+                            <span data-i18n="downloads.step2">Descarga e instala el archivo APK</span>
                         </li>
                         <li class="flex items-start">
                             <span class="font-bold mr-2">3.</span>
-                            <span>Inicia DeepIRC y acepta el Pacto de Honor</span>
+                            <span data-i18n="downloads.step3">Inicia DeepIRC y acepta el Pacto</span>
                         </li>
                     </ol>
                 </div>
-            </div>
-            
-            <!-- Patreon -->
-            <div class="cyber-card p-6 border-purple-500/30">
+ <!-- Advertencia de seguridad -->
+                <div class="mt-4 p-3 bg-yellow-900/20 border border-yellow-700/30 rounded">
+                    <div class="flex items-start">
+                        <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                        <div>
+                            <p class="text-sm text-yellow-300" data-i18n="downloads.warning">
+                                ⚠️ IMPORTANTE: Siempre verifica la firma SHA-256
+                            </p>
+                            <p class="text-xs text-yellow-300/70 mt-1" data-i18n="downloads.support">
+                                Soporte: support@deepirc.net
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>    
+              <!-- Patreon -->
+            <div class="cyber-card p-4 md:p-6 border-purple-500/30">
                 <div class="flex items-center mb-4">
                     <i class="fab fa-patreon text-purple-400 text-2xl mr-3"></i>
-                    <h4 class="text-lg font-bold text-purple-300">APOYAR DEEPIRC EN PATREON</h4>
+                    <h4 class="text-lg md:text-xl font-bold text-purple-300" data-i18n="patreon.title">
+                        APOYAR_DEEPIRC
+                    </h4>
                 </div>
                 
-                <p class="mb-4 text-purple-300/80">Ayúdanos a mantener y mejorar DeepIRC. Tu apoyo nos permite:</p>
-                
-                <ul class="space-y-2 mb-6">
-                    <li class="flex items-start">
-                        <i class="fas fa-check text-purple-400 mt-1 mr-2"></i>
-                        <span>Mantener los servidores IRC gratuitos</span>
-                    </li>
-                    <li class="flex items-start">
-                        <i class="fas fa-check text-purple-400 mt-1 mr-2"></i>
-                        <span>Desarrollar nuevas características</span>
-                    </li>
-                    <li class="flex items-start">
-                        <i class="fas fa-check text-purple-400 mt-1 mr-2"></i>
-                        <span>Ofrecer soporte técnico</span>
-                    </li>
-                </ul>
+                <p class="mb-4 text-purple-300/80 text-sm md:text-base" data-i18n="patreon.description">
+                    Ayúdanos a mantener y mejorar DeepIRC.
+                </p>
                 
                 <a href="https://patreon.com/deepirc" 
                    target="_blank" 
                    rel="noopener noreferrer"
-                   class="cyber-button bg-purple-600 border-purple-500 hover:bg-purple-700 inline-flex items-center">
+                   class="cyber-button bg-purple-600 border-purple-500 hover:bg-purple-700 inline-flex items-center mb-6">
                     <i class="fab fa-patreon mr-2"></i>
-                    APOYAR EN PATREON
+                    <span data-i18n="patreon.button">APOYAR EN PATREON</span>
                 </a>
                 
-                <div class="mt-6 pt-4 border-t border-purple-900/30">
-                    <h5 class="font-bold mb-3 text-purple-300">VENTAJAS PARA PATRONS</h5>
-                    <ul class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                <div class="mt-4 pt-4 border-t border-purple-900/30">
+                    <h5 class="font-bold mb-3 text-purple-300" data-i18n="patreon.perks">
+                        VENTAJAS PATREON
+                    </h5>
+                    <ul class="space-y-2 text-sm text-purple-300/80">
                         <li class="flex items-start">
                             <i class="fas fa-star text-purple-400 mt-1 mr-2"></i>
-                            <span>Acceso anticipado a nuevas versiones</span>
+                            <span data-i18n="patreon.perk1">• Acceso anticipado a nuevas características</span>
                         </li>
                         <li class="flex items-start">
                             <i class="fas fa-headset text-purple-400 mt-1 mr-2"></i>
-                            <span>Soporte prioritario</span>
+                            <span data-i18n="patreon.perk2">• Soporte prioritario</span>
                         </li>
                         <li class="flex items-start">
                             <i class="fas fa-award text-purple-400 mt-1 mr-2"></i>
-                            <span>Insignia exclusiva en la app</span>
+                            <span data-i18n="patreon.perk3">• Insignia exclusiva en la app</span>
                         </li>
                         <li class="flex items-start">
                             <i class="fas fa-crown text-purple-400 mt-1 mr-2"></i>
-                            <span>Acceso al canal VIP en IRC</span>
+                            <span data-i18n="patreon.perk4">• Acceso al canal VIP en IRC</span>
                         </li>
                     </ul>
                 </div>
             </div>
         </div>
     `;
+ // Re-aplicar idioma
+    applyLanguage(appState.currentLang);
+    
+    // Re-configurar event listener para el botón de descarga
+    document.getElementById('downloadApk')?.addEventListener('click', downloadAPK);
 }
+
 
 function downloadAPK() {
     // URL del APK
