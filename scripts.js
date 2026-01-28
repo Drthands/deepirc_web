@@ -844,7 +844,7 @@ function setupEventListeners() {
             if (section === 'admin') {
                 if (!appState.isAdmin) {
                     const userKey = prompt("🔑 Introduce la clave de administrador:");
-                    if (userKey && verifyMasterKey(userKey)) {
+                    if (userKey && verifyMasterKey(userKey)) {                     
                         showSection('admin');
                         setTimeout(() => loadAdminData(), 300);
                     } else {
@@ -1214,7 +1214,7 @@ function generateMasterHash(key) {
         console.log(`   Paso 2 - Representación hex: ${hexRepresentation.substring(0, 32)}...`);
 
         // Paso 3: Aplicar MD5 a la representación hexadecimal
-        const hashResult = simpleMD5(hexRepresentation);
+        const hashResult = MD5(hexRepresentation);
         console.log(`   Paso 3 - Hash MD5 resultante: ${hashResult}`);
 
         // Paso 4: Verificar que el hash sea válido
