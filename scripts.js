@@ -3,7 +3,7 @@ const config = {
     SUPABASE_URL: 'https://bbbqjzjaivzrywwkczry.supabase.co',
     SUPABASE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiYnFqemphaXZ6cnl3d2tjenJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzMjkwMzAsImV4cCI6MjA4MTkwNTAzMH0.6bMDVnoOhiigahZOJU7e59Nn6q95Kop4U4h9iwEtAhQ',
     // Hash MD5 de "DEEP_DRTHANDS_2025" encriptado consigo mismo
-    MASTER_KEY_HASH: "aefb2947d03a6a6662780d18209280bc",
+    MASTER_KEY_HASH: "0000000000000000000000006d74eb1a",
     VERSION: "2.0.1"
 };
 
