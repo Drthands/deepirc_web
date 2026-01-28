@@ -215,8 +215,8 @@ function initializeMasterKey() {
         console.warn("⚠️ MASTER_KEY_HASH no configurado o inválido");
         
         // Generar hash por defecto
-        const defaultKey = "DEEP_DRTHANDS_2025";
-        const defaultHash = generateMasterHash(defaultKey);
+        //const defaultKey = "DEEP_DRTHANDS_2025";
+        //const defaultHash = generateMasterHash(defaultKey);
         
         if (defaultHash) {
             console.log(`🔄 Configurando hash por defecto: ${defaultHash}`);
