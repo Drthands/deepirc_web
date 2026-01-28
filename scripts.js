@@ -108,7 +108,7 @@ function setupInitialNavigation() {
         }
         
         // Mostrar sección válida
-        const validSections = ['landing', 'help', 'linking', 'contract', 'admin', 'recovery', 'downloads'];
+        const validSections = ['landing', 'help', 'linking', 'contract', 'admin', 'recovery', 'downloads', 'patreon'];
         if (validSections.includes(hash)) {
             setTimeout(() => {
                 showSection(hash);
@@ -119,6 +119,9 @@ function setupInitialNavigation() {
                 }
                 if (hash === 'downloads') {
                     loadDownloadsInfo();
+                }
+                if (hash === 'patreon') {
+                    loadPatreonSection();
                 }
             }, 100);
         }
@@ -859,6 +862,9 @@ function setupEventListeners() {
             // Cargar contenido específico
             if (section === 'downloads') {
                 setTimeout(() => loadDownloadsInfo(), 100);
+            }
+            if (section === 'patreon') {
+                setTimeout(() => loadPatreonSection(), 100);
             }
         });
     });
