@@ -48,6 +48,9 @@ function initializeApp() {
     
     // OCULTAR SECCIÓN ADMIN POR DEFECTO
     hideAdminSection();
+
+     // ... otras inicializaciones ...
+    initializeMasterKey();
     
     // Mostrar sección inicial
     if (!window.location.hash) {
@@ -203,54 +206,158 @@ function clearAdminSession() {
 
 // =================== FUNCIONES DE SEGURIDAD ===================
 
-function md5(input) {
-    if (!input) return '';
-    let hash = 0;
-    for (let i = 0; i < input.length; i++) {
-        const char = input.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash;
+// Inicializar con la clave correcta si no está configurada
+function initializeMasterKey() {
+    if (!config.MASTER_KEY_HASH || config.MASTER_KEY_HASH.length !== 32) {
+        console.warn("⚠️ MASTER_KEY_HASH no configurado o inválido");
+        
+        // Generar hash por defecto
+        const defaultKey = "DEEP_DRTHANDS_2025";
+        const defaultHash = generateMasterHash(defaultKey);
+        
+        if (defaultHash) {
+            console.log(`🔄 Configurando hash por defecto: ${defaultHash}`);
+            config.MASTER_KEY_HASH = defaultHash;
+            
+            // Mostrar alerta informativa
+            setTimeout(() => {
+                alert(`🔑 CLAVE MAESTRA CONFIGURADA\n\nClave: ${defaultKey}\nHash: ${defaultHash.substring(0, 16)}...\n\nGuarda este hash en config.MASTER_KEY_HASH`);
+            }, 1000);
+        }
+    } else {
+        console.log(`✅ MASTER_KEY_HASH configurado: ${config.MASTER_KEY_HASH.substring(0, 8)}...`);
     }
-    return (hash >>> 0).toString(16).padStart(32, '0');
 }
 
-function xorEncrypt(text, key) {
-    let result = '';
-    for (let i = 0; i < text.length; i++) {
-        const keyChar = key.charCodeAt(i % key.length);
-        const textChar = text.charCodeAt(i);
-        result += String.fromCharCode(textChar ^ keyChar);
+
+// Función MD5 mejorada (versión simplificada pero funcional)
+function md5(input) {
+    if (!input) return '';
+    
+    // Convertir string a array de bytes
+    const bytes = [];
+    for (let i = 0; i < input.length; i++) {
+        bytes.push(input.charCodeAt(i));
     }
+    
+    // Implementación MD5 simplificada
+    // En producción, usaría una librería como crypto-js
+    let h0 = 0x67452301;
+    let h1 = 0xEFCDAB89;
+    let h2 = 0x98BADCFE;
+    let h3 = 0x10325476;
+    
+    // Procesar bloques
+    for (let i = 0; i < bytes.length; i += 64) {
+        const chunk = bytes.slice(i, i + 64);
+        
+        // Operaciones MD5 (simplificadas)
+        for (let j = 0; j < 64; j++) {
+            let f, g;
+             if (j < 16) {
+                f = (h1 & h2) | ((~h1) & h3);
+                g = j;
+            } else if (j < 32) {
+                f = (h3 & h1) | ((~h3) & h2);
+                g = (5 * j + 1) % 16;
+            } else if (j < 48) {
+                f = h1 ^ h2 ^ h3;
+                g = (3 * j + 5) % 16;
+            } else {
+                f = h2 ^ (h1 | (~h3));
+                g = (7 * j) % 16;
+            }
+            
+            // Variables temporales
+            const temp = h3;
+            h3 = h2;
+            h2 = h1;
+            h1 = h1 + ((h0 + f + chunk[g]) >>> 0);
+            h0 = temp;
+        }
+    }
+    
+    // Convertir a hex
+    const toHex = (num) => {
+        const hex = (num >>> 0).toString(16);
+        return '0'.repeat(8 - hex.length) + hex;
+    };
+    
+    return toHex(h0) + toHex(h1) + toHex(h2) + toHex(h3);
+}
+
+// Función de encriptación XOR mejorada
+function xorEncrypt(text, key) {
+    if (!text || !key) return '';
+    
+    let result = '';
+    const keyLength = key.length;
+    
+    for (let i = 0; i < text.length; i++) {
+        // Obtener caracteres como códigos ASCII
+        const textCharCode = text.charCodeAt(i);
+        const keyCharCode = key.charCodeAt(i % keyLength);
+        
+        // Aplicar XOR
+        const encryptedCharCode = textCharCode ^ keyCharCode;
+        
+        // Asegurar que esté en rango ASCII imprimible (32-126)
+        const safeCharCode = (encryptedCharCode % 95) + 32;
+        
+        result += String.fromCharCode(safeCharCode);
+    }
+    
     return result;
 }
 
+// Función de verificación mejorada
 function verifyMasterKey(inputKey) {
-    if (!inputKey || inputKey.trim() === '') return false;
+    if (!inputKey || typeof inputKey !== 'string' || inputKey.trim() === '') {
+        console.log("❌ Clave vacía o inválida");
+        return false;
+    }
+    
+    console.log(`🔐 Verificando clave: "${inputKey}"`);
     
     try {
-        const encrypted = xorEncrypt(inputKey, inputKey);
-        const calculatedHash = md5(encrypted);
+        // Generar hash de la clave ingresada
+        const inputHash = generateMasterHash(inputKey);
         
-        console.log(`🔑 Verificación clave: "${inputKey}" -> ${calculatedHash}`);
+        if (!inputHash) {
+            console.log("❌ No se pudo generar hash de la entrada");
+            return false;
+        }
         
-        const isValid = calculatedHash === config.MASTER_KEY_HASH;
+        console.log(`📊 Hash de entrada: ${inputHash}`);
+        console.log(`📊 Hash esperado:   ${config.MASTER_KEY_HASH}`);
+        
+        const isValid = inputHash === config.MASTER_KEY_HASH;
         
         if (isValid) {
+            console.log("✅ ¡CLAVE VÁLIDA! Acceso concedido.");
+            
+            // Guardar sesión admin
             saveAdminSession();
             appState.isAdmin = true;
             showAdminSection();
-            console.log("✅ Clave maestra válida");
+            
+            // Cargar datos admin automáticamente
+            setTimeout(() => {
+                if (appState.currentSection === 'admin') {
+                    loadAdminData();
+                }
+            }, 500);
         } else {
-            console.log("❌ Clave maestra inválida");
+            console.log("❌ Clave incorrecta");
         }
         
         return isValid;
+      
     } catch (error) {
-        console.error("Error en verificación:", error);
+        console.error("❌ Error en verificación:", error);
         return false;
     }
 }
-
 // =================== FUNCIONES PRINCIPALES ===================
 
 async function handleAccess() {
@@ -1078,16 +1185,46 @@ function applyLanguage(lang) {
 
 // =================== FUNCIONES DE PRUEBA Y DEBUG ===================
 
-// Para generar el hash correcto de tu clave maestra
-window.generateMasterHash = function(key) {
-    const encrypted = xorEncrypt(key, key);
-    const hash = md5(encrypted);
-    console.log(`Clave: "${key}"`);
-    console.log(`Encriptada: "${encrypted}"`);
-    console.log(`MD5: ${hash}`);
-    console.log(`\nPara config.MASTER_KEY_HASH usa: "${hash}"`);
-    return hash;
-};
+// Función para generar hash de clave maestra CORREGIDA
+function generateMasterHash(key) {
+    if (!key || typeof key !== 'string') {
+        console.error("❌ Error: La clave debe ser un string no vacío");
+        return null;
+    }
+    
+    console.log(`🔑 Generando hash para clave: "${key}"`);
+    
+    try {
+        // Paso 1: Encriptar la clave consigo misma
+        const encrypted = xorEncrypt(key, key);
+        console.log(`   Paso 1 - Clave encriptada: "${encrypted}" (${encrypted.length} chars)`);
+        
+        // Paso 2: Convertir a representación hexadecimal de los códigos ASCII
+        let hexRepresentation = '';
+        for (let i = 0; i < encrypted.length; i++) {
+            hexRepresentation += encrypted.charCodeAt(i).toString(16).padStart(2, '0');
+        }
+        console.log(`   Paso 2 - Representación hex: ${hexRepresentation.substring(0, 32)}...`);
+        
+        // Paso 3: Aplicar MD5 a la representación hexadecimal
+        const hashResult = simpleMD5(hexRepresentation);
+        console.log(`   Paso 3 - Hash MD5 resultante: ${hashResult}`);
+        
+        // Paso 4: Verificar que el hash sea válido
+        if (!hashResult || hashResult.length !== 32) {
+            throw new Error("Hash inválido generado");
+        }
+        
+        console.log(`✅ Hash generado exitosamente: ${hashResult}`);
+        console.log(`📋 Para config.MASTER_KEY_HASH usa: "${hashResult}"`);
+        
+        return hashResult;
+        
+    } catch (error) {
+        console.error("❌ Error generando hash:", error);
+        return null;
+    }
+}
 
 // Depuración
 window.debugAppState = function() {
