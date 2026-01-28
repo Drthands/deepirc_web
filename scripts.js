@@ -1252,3 +1252,4 @@ window.debugAppState = function() {
 
 // Ejecutar en consola para pruebas:
 // generateMasterHash("DEEP_DRTHANDS_2025")
+// debugAppState()
