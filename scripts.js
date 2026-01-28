@@ -39,9 +39,12 @@ function initializeApp() {
     
     // Verificar si ya se aceptó el pacto
     checkPactStatus();
+
+    // Verificar admin persistente
+    checkAdminPersistent();
     
-    // Configurar navegación
-    setupNavigation();
+    // Configurar navegación inicial
+    setupInitialNavigation();
     
     // OCULTAR SECCIÓN ADMIN POR DEFECTO
     hideAdminSection();
@@ -53,51 +56,99 @@ function initializeApp() {
 }
 
 function hideAdminSection() {
+    console.log("👻 Ocultando sección admin...");
+    
     // Ocultar enlace de admin en navegación
-    const adminNav = document.querySelector('.nav-link[data-section="admin"]');
-    if (adminNav) {
-        adminNav.style.display = 'none';
+    const adminNavLinks = document.querySelectorAll('.nav-link[data-section="admin"]');
+    adminNavLinks.forEach(link => {
+        link.style.display = 'none';
+        link.classList.remove('active');
+    });
+    
+    // Ocultar sección admin si está visible
+    const adminSection = document.getElementById('admin');
+    if (adminSection) {
+        adminSection.style.display = 'none';
+        adminSection.classList.remove('active');
     }
 }
+
 
 function showAdminSection() {
+    console.log("👑 Mostrando sección admin...");
+    
     // Mostrar enlace de admin en navegación
-    const adminNav = document.querySelector('.nav-link[data-section="admin"]');
-    if (adminNav) {
-        adminNav.style.display = 'flex';
+    const adminNavLinks = document.querySelectorAll('.nav-link[data-section="admin"]');
+    adminNavLinks.forEach(link => {
+        link.style.display = 'flex';
+    });
+    
+    // Mostrar sección admin
+    const adminSection = document.getElementById('admin');
+    if (adminSection) {
+        adminSection.style.display = 'block';
     }
 }
 
-function setupNavigation() {
-    // Navegación por hash en URL
+
+function setupInitialNavigation() {
+    // Manejar hash inicial
     if (window.location.hash) {
         const hash = window.location.hash.substring(1);
-        const validSections = ['landing', 'help', 'linking', 'contract', 'admin', 'recovery', 'downloads', 'patreon'];
         
-        // Solo mostrar admin si ya está autenticado
+        // Si intentan acceder a admin sin permisos
         if (hash === 'admin' && !appState.isAdmin) {
+            console.log("⛔ Bloqueando acceso admin no autorizado");
             showSection('landing');
             history.replaceState(null, '', '#landing');
             return;
         }
         
+        // Mostrar sección válida
+        const validSections = ['landing', 'help', 'linking', 'contract', 'admin', 'recovery', 'downloads'];
         if (validSections.includes(hash)) {
             setTimeout(() => {
                 showSection(hash);
                 
-                // Si es downloads, cargar contenido
+                // Cargar contenido específico
+                if (hash === 'admin' && appState.isAdmin) {
+                    loadAdminData();
+                }
                 if (hash === 'downloads') {
                     loadDownloadsInfo();
                 }
-                 if (hash === 'patreon') {
-                    loadPatreonInfo();
-                }
             }, 100);
         }
+    } else {
+        // Por defecto, mostrar landing
+        showSection('landing');
     }
 }
-
 // =================== FUNCIONES DE REGISTRO ===================
+
+function checkAdminPersistent() {
+    const adminAuth = sessionStorage.getItem('deepirc_admin_auth');
+    const adminTimestamp = sessionStorage.getItem('deepirc_admin_timestamp');
+    
+    if (adminAuth === 'true' && adminTimestamp) {
+        const now = Date.now();
+        const sessionDuration = 2 * 60 * 60 * 1000; // 2 horas
+        
+        if (now - parseInt(adminTimestamp) < sessionDuration) {
+            console.log("✅ Sesión admin activa encontrada");
+            appState.isAdmin = true;
+            showAdminSection();
+            return true;
+        } else {
+            console.log("⏰ Sesión admin expirada");
+            sessionStorage.removeItem('deepirc_admin_auth');
+            sessionStorage.removeItem('deepirc_admin_timestamp');
+        }
+    }
+    
+    appState.isAdmin = false;
+    return false;
+}
 
 function checkRegistrationParams() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -136,34 +187,22 @@ function checkRegistrationParams() {
     }
 }
 
-function showRegistrationNotification() {
-    // Remover notificaciones previas
-    const existing = document.querySelector('.cyber-notification');
-    if (existing) existing.remove();
-    
-    const notification = document.createElement('div');
-    notification.className = 'cyber-notification fixed top-4 right-4 z-50';
-    notification.innerHTML = `
-        <div class="cyber-card p-4 bg-blue-900/30 border-blue-500/50 max-w-xs">
-            <div class="flex items-start">
-                <i class="fas fa-mobile-alt text-blue-400 mr-3 mt-1"></i>
-                <div>
-                    <p class="font-bold text-blue-300">📱 REGISTRO DESDE APP</p>
-                    <p class="text-sm text-blue-300/70 mt-1">Token: <strong class="font-mono">${appState.registrationData.token.substring(0, 20)}...</strong></p>
-                    <p class="text-xs text-blue-300/50 mt-2">El token se ha auto-llenado en el formulario</p>
-                </div>
-                <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-gray-400 hover:text-white">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(notification);
+function saveAdminSession() {
+    sessionStorage.setItem('deepirc_admin_auth', 'true');
+    sessionStorage.setItem('deepirc_admin_timestamp', Date.now().toString());
+    console.log("💾 Sesión admin guardada");
+}
+
+function clearAdminSession() {
+    sessionStorage.removeItem('deepirc_admin_auth');
+    sessionStorage.removeItem('deepirc_admin_timestamp');
+    appState.isAdmin = false;
+    hideAdminSection();
+    console.log("🧹 Sesión admin limpiada");
 }
 
 // =================== FUNCIONES DE SEGURIDAD ===================
 
-// Función MD5 (simplificada)
 function md5(input) {
     if (!input) return '';
     let hash = 0;
@@ -175,7 +214,6 @@ function md5(input) {
     return (hash >>> 0).toString(16).padStart(32, '0');
 }
 
-// Función XOR para encriptación
 function xorEncrypt(text, key) {
     let result = '';
     for (let i = 0; i < text.length; i++) {
@@ -186,20 +224,27 @@ function xorEncrypt(text, key) {
     return result;
 }
 
-// Verificar clave maestra
 function verifyMasterKey(inputKey) {
     if (!inputKey || inputKey.trim() === '') return false;
     
     try {
-        // Encriptar la clave consigo misma
         const encrypted = xorEncrypt(inputKey, inputKey);
-        
-        // Generar MD5 del resultado
         const calculatedHash = md5(encrypted);
         
-        console.log(`🔑 Verificación clave: Input="${inputKey}", Hash=${calculatedHash}`);
+        console.log(`🔑 Verificación clave: "${inputKey}" -> ${calculatedHash}`);
         
-        return calculatedHash === config.MASTER_KEY_HASH;
+        const isValid = calculatedHash === config.MASTER_KEY_HASH;
+        
+        if (isValid) {
+            saveAdminSession();
+            appState.isAdmin = true;
+            showAdminSection();
+            console.log("✅ Clave maestra válida");
+        } else {
+            console.log("❌ Clave maestra inválida");
+        }
+        
+        return isValid;
     } catch (error) {
         console.error("Error en verificación:", error);
         return false;
@@ -223,10 +268,8 @@ async function handleAccess() {
     // 1. Verificar si es clave maestra para admin
     if (verifyMasterKey(code)) {
         console.log("✅ Clave maestra aceptada - Acceso Admin");
-        appState.isAdmin = true;
         
         // Mostrar sección admin
-        showAdminSection();
         showSection('admin');
         
         // Cargar datos de admin
@@ -250,8 +293,8 @@ async function handleAccess() {
         highlightPactSection();
         return;
     }
-    
-    // 3. Verificar código de token
+
+     // 3. Verificar código de token
     if (!code || code.length < 8) {
         status.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>
                            <span>❌ ERROR: Token inválido (mínimo 8 caracteres).</span>`;
@@ -338,6 +381,31 @@ async function processPendingRegistration(code, status) {
         status.style.color = "#ef4444";
     }
 }
+function showRegistrationNotification() {
+    // Remover notificaciones previas
+    const existing = document.querySelector('.cyber-notification');
+    if (existing) existing.remove();
+    
+    const notification = document.createElement('div');
+    notification.className = 'cyber-notification fixed top-4 right-4 z-50';
+    notification.innerHTML = `
+        <div class="cyber-card p-4 bg-blue-900/30 border-blue-500/50 max-w-xs">
+            <div class="flex items-start">
+                <i class="fas fa-mobile-alt text-blue-400 mr-3 mt-1"></i>
+                <div>
+                    <p class="font-bold text-blue-300">📱 REGISTRO DESDE APP</p>
+                    <p class="text-sm text-blue-300/70 mt-1">Token: <strong class="font-mono">${appState.registrationData.token.substring(0, 20)}...</strong></p>
+                    <p class="text-xs text-blue-300/50 mt-2">El token se ha auto-llenado en el formulario</p>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-gray-400 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(notification);
+}
+
 
 async function processNormalToken(code, status) {
     status.innerHTML = `<i class="fas fa-sync-alt animate-spin mr-2"></i>
@@ -381,31 +449,56 @@ async function processNormalToken(code, status) {
     }
 }
 
-// =================== FUNCIONES DE ADMIN ===================
+// =================== FUNCIONES DE ADMIN - CORREGIDAS ===================
 
 async function loadAdminData() {
-    const adminContent = document.getElementById('adminContent');
-    if (!adminContent) return;
+    console.log("📊 Cargando datos de administración...");
     
-    adminContent.innerHTML = `<div class="text-center p-8">
-        <i class="fas fa-sync-alt animate-spin text-3xl text-green-400 mb-4"></i>
-        <p>Cargando datos de administración...</p>
-    </div>`;
+    const adminContent = document.getElementById('adminContent');
+    if (!adminContent) {
+        console.error("❌ No se encontró adminContent");
+        return;
+    }
+    
+    // Mostrar loading
+    adminContent.innerHTML = `
+        <div class="text-center p-8">
+            <i class="fas fa-sync-alt animate-spin text-3xl text-green-400 mb-4"></i>
+            <p class="text-green-300">Conectando con la base de datos...</p>
+            <p class="text-sm text-green-400/60 mt-2">Obteniendo registros de usuarios</p>
+        </div>
+    `;
     
     try {
+        // Verificar que supabase está disponible
+        if (typeof supabase === 'undefined') {
+            throw new Error("Supabase no está disponible. Verifica la conexión.");
+        }
+        
         const _supabase = supabase.createClient(config.SUPABASE_URL, config.SUPABASE_KEY);
         
-        // Obtener todos los registros
-        const { data: registrations, error } = await _supabase
+        console.log("🔗 Conectando a Supabase...");
+        
+        // Obtener todos los registros con timeout
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error("Timeout: La conexión tardó demasiado")), 10000)
+        );
+        
+        const queryPromise = _supabase
             .from('device_registrations')
             .select('*')
             .order('created_at', { ascending: false });
+
+ const { data: registrations, error } = await Promise.race([queryPromise, timeoutPromise]);
         
-        if (error) throw error;
+        if (error) {
+            console.error("❌ Error en consulta Supabase:", error);
+            throw new Error(`Error de base de datos: ${error.message}`);
+        }
         
-        console.log(`📊 Datos cargados: ${registrations?.length || 0} registros`);
+        console.log(`✅ Datos obtenidos: ${registrations?.length || 0} registros`);
         
-        // Verificar si hay datos
+        // Mostrar datos o mensaje si no hay
         if (!registrations || registrations.length === 0) {
             adminContent.innerHTML = `
                 <div class="cyber-card p-6">
@@ -413,83 +506,121 @@ async function loadAdminData() {
                     <div class="text-center p-8">
                         <i class="fas fa-database text-4xl text-gray-500 mb-4"></i>
                         <p class="text-gray-400">No hay registros en la base de datos</p>
-                        <p class="text-sm text-gray-500 mt-2">La base de datos está vacía o no se pudo conectar</p>
+                        <p class="text-sm text-gray-500 mt-2">La base de datos está vacía</p>
+                        <button onclick="loadAdminData()" class="cyber-button mt-4">
+                            <i class="fas fa-sync-alt mr-2"></i>Reintentar
+                        </button>
                     </div>
                 </div>
             `;
             return;
         }
         
-        // Estadísticas
+        // Calcular estadísticas
         const totalUsers = registrations.length;
         const premiumUsers = registrations.filter(r => r.is_premium).length;
         const pactAccepted = registrations.filter(r => r.pacto_aceptado).length;
-        
-        // Generar HTML
+        const today = new Date().toISOString().split('T')[0];
+        const todayRegistrations = registrations.filter(r => 
+            r.created_at && r.created_at.startsWith(today)
+        ).length;
+
+ 
+        // Generar HTML del panel admin
         let html = `
             <div class="cyber-card p-6 mb-6">
-                <h3 class="text-xl font-bold mb-4 text-green-300">PANEL DE ADMINISTRACIÓN</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="cyber-card p-4 bg-green-900/20">
-                        <p class="text-sm text-green-400">USUARIOS TOTALES</p>
-                        <p class="text-3xl font-bold">${totalUsers}</p>
-                    </div>
-                    <div class="cyber-card p-4 bg-blue-900/20">
-                        <p class="text-sm text-blue-400">USUARIOS PREMIUM</p>
-                        <p class="text-3xl font-bold">${premiumUsers}</p>
-                    </div>
-                    <div class="cyber-card p-4 bg-yellow-900/20">
-                        <p class="text-sm text-yellow-400">PACTO ACEPTADO</p>
-                        <p class="text-3xl font-bold">${pactAccepted}</p>
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-green-300">PANEL DE ADMINISTRACIÓN</h3>
+                    <div class="flex gap-2">
+                        <button onclick="refreshAdminData()" class="cyber-button px-3 py-1">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button onclick="clearAdminSession()" class="cyber-button px-3 py-1 bg-red-900/30">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
                     </div>
                 </div>
                 
-                <h4 class="text-lg font-bold mb-3 text-green-300">ÚLTIMOS 10 REGISTROS</h4>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="border-b border-green-800">
-                                <th class="p-2 text-left">ID</th>
-                                <th class="p-2 text-left">Device Hash</th>
-                                <th class="p-2 text-left">Nick</th>
-                                <th class="p-2 text-left">Email</th>
-                                <th class="p-2 text-left">Premium</th>
-                                <th class="p-2 text-left">Fecha</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                <!-- Estadísticas -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                    <div class="cyber-card p-4 bg-green-900/20">
+                        <p class="text-sm text-green-400">TOTAL</p>
+                        <p class="text-2xl font-bold">${totalUsers}</p>
+                    </div>
+                    <div class="cyber-card p-4 bg-blue-900/20">
+                        <p class="text-sm text-blue-400">PREMIUM</p>
+                        <p class="text-2xl font-bold">${premiumUsers}</p>
+                    </div>
+                    <div class="cyber-card p-4 bg-yellow-900/20">
+                        <p class="text-sm text-yellow-400">PACTO</p>
+                        <p class="text-2xl font-bold">${pactAccepted}</p>
+                    </div>
+                    <div class="cyber-card p-4 bg-purple-900/20">
+                        <p class="text-sm text-purple-400">HOY</p>
+                        <p class="text-2xl font-bold">${todayRegistrations}</p>
+                    </div>
+                </div>
+         <!-- Tabla de registros -->
+                <div class="mb-4">
+                    <h4 class="text-lg font-bold mb-3 text-green-300">ÚLTIMOS REGISTROS</h4>
+                    <div class="overflow-x-auto rounded border border-green-800/50">
+                        <table class="w-full text-sm">
+                            <thead class="bg-green-950/50">
+                                <tr>
+                                    <th class="p-3 text-left">ID</th>
+                                    <th class="p-3 text-left">Device ID</th>
+                                    <th class="p-3 text-left">Nick</th>
+                                    <th class="p-3 text-left">Email</th>
+                                    <th class="p-3 text-left">Premium</th>
+                                    <th class="p-3 text-left">Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
         `;
         
-        registrations.slice(0, 10).forEach(reg => {
+        // Filas de datos
+        registrations.slice(0, 15).forEach((reg, index) => {
+            const rowClass = index % 2 === 0 ? 'bg-green-900/10' : 'bg-green-900/5';
+            const deviceId = reg.device_hash || 'N/A';
+            const nick = reg.nick || 'N/A';
+            const email = reg.email ? (reg.email.length > 15 ? reg.email.substring(0, 15) + '...' : reg.email) : 'N/A';
+            const premium = reg.is_premium ? '✅' : '❌';
+            const date = reg.created_at ? new Date(reg.created_at).toLocaleDateString('es-ES') : 'N/A';
+            
             html += `
-                <tr class="border-b border-green-900/30 hover:bg-green-900/10">
-                    <td class="p-2 font-mono text-xs">${reg.id?.substring(0, 8) || 'N/A'}</td>
-                    <td class="p-2 font-mono">${reg.device_hash?.substring(0, 12)}...</td>
-                    <td class="p-2">${reg.nick || 'N/A'}</td>
-                    <td class="p-2">${reg.email ? (reg.email.length > 20 ? reg.email.substring(0, 20) + '...' : reg.email) : 'N/A'}</td>
-                    <td class="p-2">${reg.is_premium ? '✅' : '❌'}</td>
-                    <td class="p-2 text-xs">${reg.created_at ? new Date(reg.created_at).toLocaleDateString() : 'N/A'}</td>
+                <tr class="${rowClass} hover:bg-green-800/20">
+                    <td class="p-3 font-mono text-xs">${reg.id ? reg.id.substring(0, 6) + '...' : 'N/A'}</td>
+                    <td class="p-3 font-mono text-xs">${deviceId.substring(0, 10)}...</td>
+                    <td class="p-3">${nick}</td>
+                    <td class="p-3">${email}</td>
+                    <td class="p-3 text-center">${premium}</td>
+                    <td class="p-3 text-xs">${date}</td>
                 </tr>
             `;
         });
-        
+ 
         html += `
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-xs text-green-400/60 mt-2">Mostrando ${Math.min(15, registrations.length)} de ${registrations.length} registros</p>
                 </div>
                 
+                <!-- Información de conexión -->
                 <div class="mt-6 pt-4 border-t border-green-800">
-                    <h4 class="text-lg font-bold mb-3 text-green-300">ACCIONES RÁPIDAS</h4>
-                    <div class="flex flex-wrap gap-2">
-                        <button onclick="exportData()" class="cyber-button px-4 py-2">
-                            <i class="fas fa-download mr-2"></i>Exportar CSV
-                        </button>
-                        <button onclick="refreshAdminData()" class="cyber-button px-4 py-2">
-                            <i class="fas fa-sync-alt mr-2"></i>Actualizar
-                        </button>
-                        <button onclick="testDatabaseConnection()" class="cyber-button px-4 py-2">
-                            <i class="fas fa-database mr-2"></i>Test BD
-                        </button>
+                    <div class="flex flex-wrap gap-4 text-xs text-green-400/70">
+                        <div class="flex items-center">
+                            <i class="fas fa-database mr-2"></i>
+                            <span>Tabla: device_registrations</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-clock mr-2"></i>
+                            <span>Actualizado: ${new Date().toLocaleTimeString()}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-user-shield mr-2"></i>
+                            <span>Acceso: Root</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -498,61 +629,96 @@ async function loadAdminData() {
         adminContent.innerHTML = html;
         
     } catch (error) {
-        console.error("❌ Error cargando datos admin:", error);
-        adminContent.innerHTML = `<div class="cyber-card p-6">
-            <h3 class="text-xl font-bold mb-4 text-red-300">ERROR</h3>
-            <p class="text-red-400">Error cargando datos: ${error.message}</p>
-            <p class="text-sm text-gray-400 mt-2">Verifica la conexión a Supabase y los permisos de la API key</p>
-        </div>`;
+ console.error("❌ Error cargando datos admin:", error);
+        adminContent.innerHTML = `
+            <div class="cyber-card p-6">
+                <h3 class="text-xl font-bold mb-4 text-red-300">ERROR DE CONEXIÓN</h3>
+                <div class="p-4 bg-red-900/20 border border-red-700/30 rounded mb-4">
+                    <p class="text-red-400">${error.message}</p>
+                    <p class="text-sm text-red-400/70 mt-2">
+                        Posibles causas:<br>
+                        1. Sin conexión a internet<br>
+                        2. Supabase no disponible<br>
+                        3. Problemas con la API key<br>
+                        4. La tabla no existe o tiene otro nombre
+                    </p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="loadAdminData()" class="cyber-button">
+                        <i class="fas fa-sync-alt mr-2"></i>Reintentar
+                    </button>
+                    <button onclick="testSupabaseConnection()" class="cyber-button">
+                        <i class="fas fa-network-wired mr-2"></i>Test Conexión
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+}
+
+async function testSupabaseConnection() {
+    try {
+        const _supabase = supabase.createClient(config.SUPABASE_URL, config.SUPABASE_KEY);
+        const { data, error } = await _supabase
+            .from('device_registrations')
+            .select('count')
+            .limit(1);
+            
+        if (error) throw error;
+        
+        alert(`✅ Conexión exitosa\n\nSupabase responde correctamente.\nURL: ${config.SUPABASE_URL}`);
+    } catch (error) {
+        alert(`❌ Error de conexión:\n\n${error.message}\n\nVerifica:\n1. La URL de Supabase\n2. La API key\n3. Los permisos de la tabla`);
     }
 }
 
 function refreshAdminData() {
+    console.log("🔄 Actualizando datos admin...");
     loadAdminData();
 }
 
-function testDatabaseConnection() {
-    alert("🔍 Probando conexión a base de datos...\n\nRevisa la consola para ver los detalles.");
-    loadAdminData();
-}
-
-function exportData() {
-    alert("📊 La exportación de datos estará disponible en la próxima versión");
-}
-
-// =================== FUNCIONES AUXILIARES ===================
-
+// =================== FUNCIONES DE NAVEGACIÓN ===================
+   
 function showSection(sectionId) {
     console.log(`📌 Mostrando sección: ${sectionId}`);
     
     // Ocultar todas las secciones
     document.querySelectorAll('.section-content').forEach(section => {
         section.classList.remove('active');
+        section.style.display = 'none';
+    });
+    
+    // Actualizar enlaces de navegación
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
     });
     
     // Mostrar sección seleccionada
     const targetSection = document.getElementById(sectionId);
     if (targetSection) {
+        targetSection.style.display = 'block';
         targetSection.classList.add('active');
         
-        // Actualizar enlaces de navegación
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.classList.remove('active');
-        });
-        
-        const correspondingLink = document.querySelector(`.nav-link[data-section="${sectionId}"]`);
+        // Activar enlace correspondiente (si existe y es visible)
+        const correspondingLink = document.querySelector(`.nav-link[data-section="${sectionId}"]:not([style*="none"])`);
         if (correspondingLink) {
             correspondingLink.classList.add('active');
         }
         
         appState.currentSection = sectionId;
         
-        // Scroll al inicio de la sección
+        // Actualizar URL
+        history.pushState(null, '', `#${sectionId}`);
+        
+        // Scroll suave
         setTimeout(() => {
-            targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }, 100);
     }
 }
+
+
+// =================== FUNCIONES DE EVENTOS ===================
 
 function setupEventListeners() {
     console.log("⚙️ Configurando event listeners...");
@@ -563,26 +729,34 @@ function setupEventListeners() {
             e.preventDefault();
             const section = this.dataset.section;
             
-            // Bloquear acceso a admin si no está autenticado
-            if (section === 'admin' && !appState.isAdmin) {
-                alert("⚠️ ACCESO RESTRINGIDO\nNecesitas clave de administrador.");
+            // Verificar acceso a admin
+            if (section === 'admin') {
+                if (!appState.isAdmin) {
+                    const userKey = prompt("🔑 Introduce la clave de administrador:");
+                    if (userKey && verifyMasterKey(userKey)) {
+                        showSection('admin');
+                        setTimeout(() => loadAdminData(), 300);
+                    } else {
+                        alert("❌ Clave incorrecta. Acceso denegado.");
+                        return;
+                    }
+                } else {
+                    showSection('admin');
+                    setTimeout(() => loadAdminData(), 100);
+                }
                 return;
             }
             
             showSection(section);
-            history.pushState(null, '', `#${section}`);
             
-            // Si es downloads, cargar contenido
+            // Cargar contenido específico
             if (section === 'downloads') {
                 setTimeout(() => loadDownloadsInfo(), 100);
             }
-            if (section === 'patreon') {
-                setTimeout(() => loadPatreonSection(), 100);
-            }
         });
     });
-    
-    // Auto-rellenar token con Enter
+  
+    // Input de acceso con Enter
     const accessInput = document.getElementById('accessCode');
     if (accessInput) {
         accessInput.addEventListener('keypress', function(e) {
@@ -600,25 +774,24 @@ function setupEventListeners() {
         });
     }
     
-    // Botón de descarga (si existe)
-    const downloadBtn = document.getElementById('downloadApk');
-    if (downloadBtn) {
-        downloadBtn.addEventListener('click', downloadAPK);
-    }
-    
     // Navegación del historial
     window.addEventListener('popstate', function() {
         if (window.location.hash) {
             const section = window.location.hash.substring(1);
+            
+            // Bloquear admin si no tiene acceso
             if (section === 'admin' && !appState.isAdmin) {
+                alert("⛔ Acceso restringido. Necesitas clave de administrador.");
                 showSection('landing');
                 history.replaceState(null, '', '#landing');
-            } else {
-                showSection(section);
+                return;
             }
+            
+            showSection(section);
         }
     });
 }
+// =================== FUNCIONES AUXILIARES ===================
 
 function updatePactStatus(isAccepted) {
     appState.pactAccepted = isAccepted;
@@ -670,6 +843,7 @@ function highlightPactSection() {
         }
     }, 300);
 }
+
 
 function showSuccessMessage() {
     const contractSection = document.getElementById('contract');
