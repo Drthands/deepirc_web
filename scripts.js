@@ -334,8 +334,6 @@ function xorEncrypt(text, key) {
     }
     return result;
 }
-    return result;
-}
 
 function md5CryptoJS(input) {
     if (typeof CryptoJS !== 'undefined') {
