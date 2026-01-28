@@ -1,5 +1,4 @@
 // =================== CONFIGURACIÓN ===================
-// Configuración y variables globales
 const config = {
     SUPABASE_URL: 'https://bbbqjzjaivzrywwkczry.supabase.co',
     SUPABASE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiYnFqemphaXZ6cnl3d2tjenJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzMjkwMzAsImV4cCI6MjA4MTkwNTAzMH0.6bMDVnoOhiigahZOJU7e59Nn6q95Kop4U4h9iwEtAhQ',
@@ -109,6 +108,7 @@ function setupInitialNavigation() {
         }
 
         // Mostrar sección válida
+        const validSections = ['landing', 'help', 'linking', 'contract', 'admin', 'recovery', 'downloads'];
         const validSections = ['landing', 'help', 'linking', 'contract', 'admin', 'recovery', 'downloads', 'patreon'];
         if (validSections.includes(hash)) {
             setTimeout(() => {
@@ -213,20 +213,15 @@ function clearAdminSession() {
 // Inicializar con la clave correcta si no está configurada
 function initializeMasterKey() {
     if (!config.MASTER_KEY_HASH || config.MASTER_KEY_HASH.length !== 32) {
-    if (!config.MASTER_KEY_HASH ) {
         console.warn("⚠️ MASTER_KEY_HASH no configurado o inválido");
 
         // Generar hash por defecto
-        //const defaultKey = "DEEP_DRTHANDS_2025";
-        //const defaultHash = generateMasterHash(defaultKey);
-       const defaultKey = "DEEP_DRTHANDS_2025";
-       const defaultHash = generateMasterHash(defaultKey);
+        const defaultKey = "DEEP_DRTHANDS_2025";
+        const defaultHash = generateMasterHash(defaultKey);
 
         if (defaultHash) {
             console.log(`🔄 Configurando hash por defecto: ${defaultHash}`);
             config.MASTER_KEY_HASH = defaultHash;
-           console.log(`🔄 Configurando hash por defecto: ${defaultHash}`);
-           config.MASTER_KEY_HASH = defaultHash;
 
             // Mostrar alerta informativa
             setTimeout(() => {
