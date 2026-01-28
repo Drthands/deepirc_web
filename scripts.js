@@ -1234,7 +1234,7 @@ function generateMasterHash(key) {
     try {
         // Paso 1: Encriptar la clave consigo misma
         const encrypted = xorEncrypt(key, key);
-        console.log(`   Paso 1 - Clave encriptada: "${encrypted}" (${encrypted.length} chars)`);
+        console.log(`   Paso 1 - Clave encriptada: "${key}  -  ${encrypted}" (${encrypted.length} chars)`);
 
         // Paso 2: Convertir a representación hexadecimal de los códigos ASCII
         let hexRepresentation = '';
