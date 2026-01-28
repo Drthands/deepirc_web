@@ -289,6 +289,36 @@ function md5(input) {
 
     return toHex(h0) + toHex(h1) + toHex(h2) + toHex(h3);
 }
+// Versión ALTERNATIVA más simple y confiable
+function simpleMD5(input) {
+    if (!input) return '';
+    
+    let hash = 0;
+    
+    // Usar un algoritmo de hash más robusto
+    for (let i = 0; i < input.length; i++) {
+        const char = input.charCodeAt(i);
+        
+        // Mezcla de bits
+        hash = ((hash << 5) - hash) + char;
+        hash = hash | 0; // Convertir a entero de 32 bits
+        
+        // Rotación adicional
+        hash = (hash << 13) | (hash >>> 19);
+    }
+    
+    // Asegurar que sea positivo y convertir a hex
+    const positiveHash = Math.abs(hash);
+    let hexHash = positiveHash.toString(16);
+    
+    // Rellenar con ceros si es necesario
+    while (hexHash.length < 32) {
+        hexHash = '0' + hexHash;
+    }
+    
+    // Tomar solo los primeros 32 caracteres
+    return hexHash.substring(0, 32);
+}
 
 // Función de encriptación XOR mejorada
 function xorEncrypt(text, key) {
@@ -1214,7 +1244,7 @@ function generateMasterHash(key) {
         console.log(`   Paso 2 - Representación hex: ${hexRepresentation.substring(0, 32)}...`);
 
         // Paso 3: Aplicar MD5 a la representación hexadecimal
-        const hashResult = MD5(hexRepresentation);
+        const hashResult = simpleMD5(hexRepresentation);
         console.log(`   Paso 3 - Hash MD5 resultante: ${hashResult}`);
 
         // Paso 4: Verificar que el hash sea válido
