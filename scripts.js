@@ -211,16 +211,16 @@ function clearAdminSession() {
 
 // Inicializar con la clave correcta si no está configurada
 function initializeMasterKey() {
-    if (!config.MASTER_KEY_HASH || config.MASTER_KEY_HASH.length !== 32) {
+    if (!config.MASTER_KEY_HASH ) {
         console.warn("⚠️ MASTER_KEY_HASH no configurado o inválido");
         
         // Generar hash por defecto
-        //const defaultKey = "DEEP_DRTHANDS_2025";
-        //const defaultHash = generateMasterHash(defaultKey);
+       const defaultKey = "DEEP_DRTHANDS_2025";
+       const defaultHash = generateMasterHash(defaultKey);
         
         if (defaultHash) {
-            console.log(`🔄 Configurando hash por defecto: ${defaultHash}`);
-            config.MASTER_KEY_HASH = defaultHash;
+           console.log(`🔄 Configurando hash por defecto: ${defaultHash}`);
+           config.MASTER_KEY_HASH = defaultHash;
             
             // Mostrar alerta informativa
             setTimeout(() => {
