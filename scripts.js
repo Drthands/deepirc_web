@@ -290,107 +290,108 @@ function md5(input) {
     return toHex(h0) + toHex(h1) + toHex(h2) + toHex(h3);
 }
 // Versión ALTERNATIVA más simple y confiable
+// Función simpleMD5 mejorada
 function simpleMD5(input) {
     if (!input) return '';
     
     let hash = 0;
-    
-    // Usar un algoritmo de hash más robusto
     for (let i = 0; i < input.length; i++) {
         const char = input.charCodeAt(i);
-        
-        // Mezcla de bits
         hash = ((hash << 5) - hash) + char;
-        hash = hash | 0; // Convertir a entero de 32 bits
+        hash = hash & hash;
         
-        // Rotación adicional
-        hash = (hash << 13) | (hash >>> 19);
+        // Mezcla adicional
+        hash = ((hash << 7) | (hash >>> 25)) + char;
     }
     
-    // Asegurar que sea positivo y convertir a hex
-    const positiveHash = Math.abs(hash);
-    let hexHash = positiveHash.toString(16);
-    
-    // Rellenar con ceros si es necesario
-    while (hexHash.length < 32) {
-        hexHash = '0' + hexHash;
+    // Convertir a hexadecimal de 32 caracteres
+    let hex = Math.abs(hash).toString(16);
+    while (hex.length < 32) {
+        hex = '0' + hex;
+    }
+    while (hex.length > 32) {
+        hex = hex.substring(0, 32);
     }
     
-    // Tomar solo los primeros 32 caracteres
-    return hexHash.substring(0, 32);
+    return hex;
 }
 
 // Función de encriptación XOR mejorada
+// =================== ENCRIPTACIÓN CORREGIDA ===================
+
+// Función XOR modificada - NO encriptar consigo mismo
 function xorEncrypt(text, key) {
     if (!text || !key) return '';
-
+    
+    // Crear un salt basado en la longitud de la clave
+    const salt = key.length.toString() + key.split('').reverse().join('');
+    
     let result = '';
-    const keyLength = key.length;
-
     for (let i = 0; i < text.length; i++) {
-        // Obtener caracteres como códigos ASCII
-        const textCharCode = text.charCodeAt(i);
-        const keyCharCode = key.charCodeAt(i % keyLength);
-
-        // Aplicar XOR
-        const encryptedCharCode = textCharCode ^ keyCharCode;
-
-        // Asegurar que esté en rango ASCII imprimible (32-126)
-        const safeCharCode = (encryptedCharCode % 95) + 32;
-
-        result += String.fromCharCode(safeCharCode);
+        const textChar = text.charCodeAt(i);
+        const keyChar = salt.charCodeAt(i % salt.length);
+        result += String.fromCharCode(textChar ^ keyChar);
     }
-
     return result;
+}
+    return result;
+}
+
+function md5CryptoJS(input) {
+    if (typeof CryptoJS !== 'undefined') {
+        return CryptoJS.MD5(input).toString();
+    }
+    return simpleMD5(input); // Fallback
 }
 
 // Función de verificación mejorada
 function verifyMasterKey(inputKey) {
-    if (!inputKey || typeof inputKey !== 'string' || inputKey.trim() === '') {
-        console.log("❌ Clave vacía o inválida");
+    if (!inputKey || inputKey.trim() === '') {
+        console.log("❌ Clave vacía");
         return false;
     }
-
+    
     console.log(`🔐 Verificando clave: "${inputKey}"`);
-
-    try {
-        // Generar hash de la clave ingresada
-        const inputHash = generateMasterHash(inputKey);
-
-        if (!inputHash) {
-            console.log("❌ No se pudo generar hash de la entrada");
-            return false;
-        }
-
-        console.log(`📊 Hash de entrada: ${inputHash}`);
-        console.log(`📊 Hash esperado:   ${config.MASTER_KEY_HASH}`);
-
-        const isValid = inputHash === config.MASTER_KEY_HASH;
-
-        if (isValid) {
-            console.log("✅ ¡CLAVE VÁLIDA! Acceso concedido.");
-
-            // Guardar sesión admin
-            saveAdminSession();
-            appState.isAdmin = true;
-            showAdminSection();
-
-            // Cargar datos admin automáticamente
-            setTimeout(() => {
-                if (appState.currentSection === 'admin') {
-                    loadAdminData();
-                }
-            }, 500);
-        } else {
-            console.log("❌ Clave incorrecta");
-        }
-
-        return isValid;
-
-    } catch (error) {
-        console.error("❌ Error en verificación:", error);
+    
+    // Generar hash de la clave ingresada
+    const inputHash = generateMasterHash(inputKey);
+    
+    if (!inputHash) {
+        console.log("❌ No se pudo generar hash");
         return false;
     }
+    
+    console.log(`📊 Hash generado:  ${inputHash}`);
+    console.log(`📊 Hash esperado:  ${config.MASTER_KEY_HASH}`);
+    
+    const isValid = inputHash === config.MASTER_KEY_HASH;
+    
+    if (isValid) {
+        console.log("✅ ¡CLAVE VÁLIDA! Acceso admin concedido.");
+        
+        // Guardar sesión y mostrar admin
+        sessionStorage.setItem('deepirc_admin_auth', 'true');
+        sessionStorage.setItem('deepirc_admin_timestamp', Date.now().toString());
+        appState.isAdmin = true;
+        
+        // Mostrar sección admin
+        const adminNav = document.querySelector('.nav-link[data-section="admin"]');
+        if (adminNav) adminNav.style.display = 'flex';
+        
+        // Mostrar sección admin
+        showSection('admin');
+
+             
+        // Cargar datos admin
+        setTimeout(() => {
+            loadAdminData();
+        }, 300);
+        
+    } else {
+        console.log("❌ Clave incorrecta");
+    }
+    
+    return isValid;
 }
 // =================== FUNCIONES PRINCIPALES ===================
 
@@ -1225,44 +1226,68 @@ function applyLanguage(lang) {
 // Función para generar hash de clave maestra CORREGIDA
 function generateMasterHash(key) {
     if (!key || typeof key !== 'string') {
-        console.error("❌ Error: La clave debe ser un string no vacío");
+        console.error("❌ Error: La clave debe ser un string");
         return null;
     }
-
+    
     console.log(`🔑 Generando hash para clave: "${key}"`);
-
+    
     try {
-        // Paso 1: Encriptar la clave consigo misma
-        const encrypted = xorEncrypt(key, key);
-        console.log(`   Paso 1 - Clave encriptada: "${key}  -  ${encrypted}" (${encrypted.length} chars)`);
-
-        // Paso 2: Convertir a representación hexadecimal de los códigos ASCII
-        let hexRepresentation = '';
-        for (let i = 0; i < encrypted.length; i++) {
-            hexRepresentation += encrypted.charCodeAt(i).toString(16).padStart(2, '0');
+        // CORRECCIÓN: No XOR con la misma clave
+        // En su lugar, usar un proceso diferente
+        
+        // Paso 1: Crear una cadena combinada (clave + salt)
+        const salt = "DEEP_SALT_2024";
+        const combined = key + salt + key.length;
+        console.log(`   Paso 1 - Cadena combinada: "${combined}"`);
+        
+        // Paso 2: Aplicar un proceso de transformación
+        let transformed = '';
+        for (let i = 0; i < combined.length; i++) {
+            const charCode = combined.charCodeAt(i);
+            // Rotar bits y sumar posición
+            const transformedChar = ((charCode << 3) | (charCode >>> 5)) + i;
+            transformed += String.fromCharCode(transformedChar & 0xFF);
         }
-        console.log(`   Paso 2 - Representación hex: ${hexRepresentation.substring(0, 32)}...`);
-
-        // Paso 3: Aplicar MD5 a la representación hexadecimal
-        const hashResult = simpleMD5(hexRepresentation);
-        console.log(`   Paso 3 - Hash MD5 resultante: ${hashResult}`);
-
-        // Paso 4: Verificar que el hash sea válido
-        if (!hashResult || hashResult.length !== 32) {
-            throw new Error("Hash inválido generado");
+        console.log(`   Paso 2 - Transformada: "${transformed.substring(0, 20)}..."`);
+        
+        // Paso 3: Convertir a hexadecimal
+        let hexString = '';
+        for (let i = 0; i < transformed.length; i++) {
+            hexString += transformed.charCodeAt(i).toString(16).padStart(2, '0');
         }
-
-        console.log(`✅ Hash generado exitosamente: ${hashResult}`);
-        console.log(`📋 Para config.MASTER_KEY_HASH usa: "${hashResult}"`);
-
-        return hashResult;
-
+        console.log(`   Paso 3 - Hex: ${hexString.substring(0, 32)}...`);
+        
+        // Paso 4: Aplicar MD5 (o nuestro simpleMD5)
+        const finalHash = md5CryptoJS(hexString) || simpleMD5(hexString);
+        console.log(`   Paso 4 - Hash final: ${finalHash}`);
+        
+        // Verificar que el hash sea válido
+        if (!finalHash || finalHash.length !== 32) {
+            throw new Error(`Hash inválido: ${finalHash}`);
+        }
+        
+        console.log(`✅ Hash generado exitosamente: ${finalHash}`);
+        console.log(`📋 Para config.MASTER_KEY_HASH usa: "${finalHash}"`);
+        
+        return finalHash;
+        
     } catch (error) {
         console.error("❌ Error generando hash:", error);
-        return null;
+        
+        // Fallback: hash simple pero consistente
+        console.log("🔄 Usando fallback hash...");
+        let simpleHash = 0;
+        for (let i = 0; i < key.length; i++) {
+            simpleHash = ((simpleHash << 5) - simpleHash) + key.charCodeAt(i);
+            simpleHash = simpleHash & simpleHash;
+        }
+        const hexHash = Math.abs(simpleHash).toString(16).padStart(32, '0');
+        console.log(`🔧 Fallback hash: ${hexHash}`);
+        
+        return hexHash;
     }
 }
-
 // Depuración
 window.debugAppState = function() {
     console.log("=== ESTADO DE LA APLICACIÓN ===");
