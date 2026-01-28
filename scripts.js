@@ -108,7 +108,7 @@ function setupInitialNavigation() {
         }
 
         // Mostrar sección válida
-        const validSections = ['landing', 'help', 'linking', 'contract', 'admin', 'recovery', 'downloads'];
+    
         const validSections = ['landing', 'help', 'linking', 'contract', 'admin', 'recovery', 'downloads', 'patreon'];
         if (validSections.includes(hash)) {
             setTimeout(() => {
