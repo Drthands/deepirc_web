@@ -526,3 +526,4 @@ const translations = {
         "status.recoverySent": "ENLACE DE RECUPERACIÓN ENVIADO. Revisa tu email.",
         "status.noEmail": "ERROR: Email no válido o no registrado."
     },
+}
