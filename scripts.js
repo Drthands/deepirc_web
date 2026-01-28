@@ -593,211 +593,190 @@ async function processNormalToken(code, status) {
 
 // =================== FUNCIONES DE ADMIN - CORREGIDAS ===================
 
+// =================== CARGAR DATOS ADMIN (CORREGIDO) ===================
 async function loadAdminData() {
     console.log("📊 Cargando datos de administración...");
-
-    const adminContent = document.getElementById('adminContent');
+    
+    // Buscar el contenedor de admin - MÁS FLEXIBLE
+    let adminContent = document.getElementById('adminContent');
+    
+    // Si no existe, crearlo
     if (!adminContent) {
-        console.error("❌ No se encontró adminContent");
-        return;
+        console.log("⚠️ adminContent no encontrado, creando...");
+        const adminSection = document.getElementById('admin');
+        if (adminSection) {
+            adminContent = document.createElement('div');
+            adminContent.id = 'adminContent';
+            adminSection.appendChild(adminContent);
+        } else {
+            console.error("❌ No se puede crear adminContent - no hay sección admin");
+            return;
+        }
     }
-
+    
     // Mostrar loading
     adminContent.innerHTML = `
-        <div class="text-center p-8">
-            <i class="fas fa-sync-alt animate-spin text-3xl text-green-400 mb-4"></i>
+        <div class="p-8 text-center">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-400 mb-4"></div>
             <p class="text-green-300">Conectando con la base de datos...</p>
-            <p class="text-sm text-green-400/60 mt-2">Obteniendo registros de usuarios</p>
         </div>
     `;
-
+    
     try {
-        // Verificar que supabase está disponible
+        // Verificar Supabase
         if (typeof supabase === 'undefined') {
-            throw new Error("Supabase no está disponible. Verifica la conexión.");
+            throw new Error("Supabase no está disponible. Verifica que el script esté cargado.");
         }
-
+        
         const _supabase = supabase.createClient(config.SUPABASE_URL, config.SUPABASE_KEY);
-
-        console.log("🔗 Conectando a Supabase...");
-
-        // Obtener todos los registros con timeout
-        const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error("Timeout: La conexión tardó demasiado")), 10000)
-        );
-
-        const queryPromise = _supabase
+        
+        // Probar conexión simple primero
+        const { count, error: countError } = await _supabase
+            .from('device_registrations')
+            .select('*', { count: 'exact', head: true });
+        
+        if (countError) {
+            throw new Error(`Error de conexión: ${countError.message}`);
+        }
+        
+        console.log(`✅ Conexión exitosa. Registros totales: ${count || 0}`);
+        
+        // Obtener datos
+        const { data: registrations, error } = await _supabase
             .from('device_registrations')
             .select('*')
-            .order('created_at', { ascending: false });
-
- const { data: registrations, error } = await Promise.race([queryPromise, timeoutPromise]);
-
-        if (error) {
-            console.error("❌ Error en consulta Supabase:", error);
-            throw new Error(`Error de base de datos: ${error.message}`);
-        }
-
-        console.log(`✅ Datos obtenidos: ${registrations?.length || 0} registros`);
-
-        // Mostrar datos o mensaje si no hay
+            .order('created_at', { ascending: false })
+            .limit(50);
+        
+        if (error) throw error;
+        
+        // Mostrar datos
         if (!registrations || registrations.length === 0) {
             adminContent.innerHTML = `
-                <div class="cyber-card p-6">
-                    <h3 class="text-xl font-bold mb-4 text-green-300">PANEL DE ADMINISTRACIÓN</h3>
-                    <div class="text-center p-8">
-                        <i class="fas fa-database text-4xl text-gray-500 mb-4"></i>
-                        <p class="text-gray-400">No hay registros en la base de datos</p>
-                        <p class="text-sm text-gray-500 mt-2">La base de datos está vacía</p>
-                        <button onclick="loadAdminData()" class="cyber-button mt-4">
-                            <i class="fas fa-sync-alt mr-2"></i>Reintentar
-                        </button>
+                <div class="p-6">
+                    <div class="bg-yellow-900/30 border border-yellow-700 rounded p-6 text-center">
+                        <p class="text-yellow-300 text-xl mb-2">📭 Base de datos vacía</p>
+                        <p class="text-yellow-400/80">No hay registros en la base de datos.</p>
+                        <p class="text-sm text-yellow-500/60 mt-2">Registra algunos usuarios primero.</p>
                     </div>
                 </div>
             `;
             return;
         }
-
-        // Calcular estadísticas
-        const totalUsers = registrations.length;
-        const premiumUsers = registrations.filter(r => r.is_premium).length;
-        const pactAccepted = registrations.filter(r => r.pacto_aceptado).length;
-        const today = new Date().toISOString().split('T')[0];
-        const todayRegistrations = registrations.filter(r => 
-            r.created_at && r.created_at.startsWith(today)
-        ).length;
-
-
-        // Generar HTML del panel admin
-        let html = `
-            <div class="cyber-card p-6 mb-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-green-300">PANEL DE ADMINISTRACIÓN</h3>
-                    <div class="flex gap-2">
-                        <button onclick="refreshAdminData()" class="cyber-button px-3 py-1">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                        <button onclick="clearAdminSession()" class="cyber-button px-3 py-1 bg-red-900/30">
-                            <i class="fas fa-sign-out-alt"></i>
+        
+        // Generar HTML con datos
+ let html = `
+            <div class="p-4 md:p-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <div>
+                        <h3 class="text-xl font-bold text-green-300">🔧 Panel de Administración</h3>
+                        <p class="text-green-400/60 text-sm">${registrations.length} registros encontrados</p>
+                    </div>
+                    <div class="flex gap-2 mt-4 md:mt-0">
+                        <button onclick="refreshAdminData()" 
+                                class="px-4 py-2 bg-green-700 hover:bg-green-600 rounded text-sm">
+                            ↻ Actualizar
                         </button>
                     </div>
                 </div>
                 
                 <!-- Estadísticas -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                    <div class="cyber-card p-4 bg-green-900/20">
-                        <p class="text-sm text-green-400">TOTAL</p>
-                        <p class="text-2xl font-bold">${totalUsers}</p>
+                    <div class="bg-green-900/30 p-4 rounded border border-green-700/50">
+                        <p class="text-sm text-green-400">Total</p>
+                        <p class="text-2xl font-bold">${registrations.length}</p>
                     </div>
-                    <div class="cyber-card p-4 bg-blue-900/20">
-                        <p class="text-sm text-blue-400">PREMIUM</p>
-                        <p class="text-2xl font-bold">${premiumUsers}</p>
+                    <div class="bg-blue-900/30 p-4 rounded border border-blue-700/50">
+                        <p class="text-sm text-blue-400">Premium</p>
+                        <p class="text-2xl font-bold">${registrations.filter(r => r.is_premium).length}</p>
                     </div>
-                    <div class="cyber-card p-4 bg-yellow-900/20">
-                        <p class="text-sm text-yellow-400">PACTO</p>
-                        <p class="text-2xl font-bold">${pactAccepted}</p>
+                    <div class="bg-yellow-900/30 p-4 rounded border border-yellow-700/50">
+                        <p class="text-sm text-yellow-400">Hoy</p>
+                        <p class="text-2xl font-bold">${registrations.filter(r => {
+                            const today = new Date().toISOString().split('T')[0];
+                            return r.created_at && r.created_at.startsWith(today);
+                        }).length}</p>
                     </div>
-                    <div class="cyber-card p-4 bg-purple-900/20">
-                        <p class="text-sm text-purple-400">HOY</p>
-                        <p class="text-2xl font-bold">${todayRegistrations}</p>
+                    <div class="bg-purple-900/30 p-4 rounded border border-purple-700/50">
+                        <p class="text-sm text-purple-400">Última semana</p>
+                        <p class="text-2xl font-bold">${registrations.filter(r => {
+                            const weekAgo = new Date();
+                            weekAgo.setDate(weekAgo.getDate() - 7);
+ return r.created_at && new Date(r.created_at) > weekAgo;
+                        }).length}</p>
                     </div>
                 </div>
-         <!-- Tabla de registros -->
-                <div class="mb-4">
-                    <h4 class="text-lg font-bold mb-3 text-green-300">ÚLTIMOS REGISTROS</h4>
-                    <div class="overflow-x-auto rounded border border-green-800/50">
-                        <table class="w-full text-sm">
-                            <thead class="bg-green-950/50">
-                                <tr>
-                                    <th class="p-3 text-left">ID</th>
-                                    <th class="p-3 text-left">Device ID</th>
-                                    <th class="p-3 text-left">Nick</th>
-                                    <th class="p-3 text-left">Email</th>
-                                    <th class="p-3 text-left">Premium</th>
-                                    <th class="p-3 text-left">Fecha</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                
+                <!-- Tabla -->
+                <div class="overflow-x-auto rounded-lg border border-green-800/50">
+                    <table class="min-w-full text-sm">
+                        <thead class="bg-green-950/70">
+                            <tr>
+                                <th class="p-3 text-left text-green-300">Device ID</th>
+                                <th class="p-3 text-left text-green-300">Nick</th>
+                                <th class="p-3 text-left text-green-300">Email</th>
+                                <th class="p-3 text-left text-green-300">Premium</th>
+                                <th class="p-3 text-left text-green-300">Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody>
         `;
-
-        // Filas de datos
-        registrations.slice(0, 15).forEach((reg, index) => {
+        
+        registrations.forEach((reg, index) => {
             const rowClass = index % 2 === 0 ? 'bg-green-900/10' : 'bg-green-900/5';
-            const deviceId = reg.device_hash || 'N/A';
+            const deviceId = reg.device_hash ? reg.device_hash.substring(0, 10) + '...' : 'N/A';
             const nick = reg.nick || 'N/A';
             const email = reg.email ? (reg.email.length > 15 ? reg.email.substring(0, 15) + '...' : reg.email) : 'N/A';
             const premium = reg.is_premium ? '✅' : '❌';
-            const date = reg.created_at ? new Date(reg.created_at).toLocaleDateString('es-ES') : 'N/A';
-
+            const date = reg.created_at ? new Date(reg.created_at).toLocaleDateString() : 'N/A';
+            
             html += `
-                <tr class="${rowClass} hover:bg-green-800/20">
-                    <td class="p-3 font-mono text-xs">${reg.id ? reg.id.substring(0, 6) + '...' : 'N/A'}</td>
-                    <td class="p-3 font-mono text-xs">${deviceId.substring(0, 10)}...</td>
+                <tr class="${rowClass} hover:bg-green-800/20 transition-colors">
+                    <td class="p-3 font-mono text-xs">${deviceId}</td>
                     <td class="p-3">${nick}</td>
                     <td class="p-3">${email}</td>
                     <td class="p-3 text-center">${premium}</td>
                     <td class="p-3 text-xs">${date}</td>
-                </tr>
+ </tr>
             `;
         });
-
+        
         html += `
-                            </tbody>
-                        </table>
-                    </div>
-                    <p class="text-xs text-green-400/60 mt-2">Mostrando ${Math.min(15, registrations.length)} de ${registrations.length} registros</p>
+                        </tbody>
+                    </table>
                 </div>
                 
-                <!-- Información de conexión -->
-                <div class="mt-6 pt-4 border-t border-green-800">
-                    <div class="flex flex-wrap gap-4 text-xs text-green-400/70">
-                        <div class="flex items-center">
-                            <i class="fas fa-database mr-2"></i>
-                            <span>Tabla: device_registrations</span>
-                        </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-clock mr-2"></i>
-                            <span>Actualizado: ${new Date().toLocaleTimeString()}</span>
-                        </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-user-shield mr-2"></i>
-                            <span>Acceso: Root</span>
-                        </div>
-                    </div>
+                <div class="mt-4 text-xs text-green-400/60">
+                    <p>Mostrando ${registrations.length} registros. Última actualización: ${new Date().toLocaleTimeString()}</p>
                 </div>
             </div>
         `;
-
+        
         adminContent.innerHTML = html;
-
+        
     } catch (error) {
- console.error("❌ Error cargando datos admin:", error);
+        console.error("❌ Error cargando datos admin:", error);
+        
         adminContent.innerHTML = `
-            <div class="cyber-card p-6">
-                <h3 class="text-xl font-bold mb-4 text-red-300">ERROR DE CONEXIÓN</h3>
-                <div class="p-4 bg-red-900/20 border border-red-700/30 rounded mb-4">
-                    <p class="text-red-400">${error.message}</p>
-                    <p class="text-sm text-red-400/70 mt-2">
-                        Posibles causas:<br>
-                        1. Sin conexión a internet<br>
-                        2. Supabase no disponible<br>
-                        3. Problemas con la API key<br>
-                        4. La tabla no existe o tiene otro nombre
-                    </p>
+            <div class="p-6">
+                <div class="bg-red-900/30 border border-red-700 rounded p-4 mb-4">
+                    <p class="text-red-300 font-bold mb-2">Error de conexión</p>
+                    <p class="text-red-400/80 text-sm">${error.message}</p>
+                    <p class="text-red-500/60 text-xs mt-2">Verifica tu conexión a internet y la configuración de Supabase.</p>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="loadAdminData()" class="cyber-button">
-                        <i class="fas fa-sync-alt mr-2"></i>Reintentar
-                    </button>
-                    <button onclick="testSupabaseConnection()" class="cyber-button">
-                        <i class="fas fa-network-wired mr-2"></i>Test Conexión
-                    </button>
-                </div>
+                <button onclick="loadAdminData()" 
+                        class="px-4 py-2 bg-green-700 hover:bg-green-600 rounded">
+                    🔄 Reintentar
+                </button>
+                <button onclick="testSupabaseConnection()" 
+                        class="px-4 py-2 bg-blue-700 hover:bg-blue-600 rounded ml-2">
+                    🔍 Probar conexión
+                </button>
             </div>
         `;
     }
 }
-
+   
 async function testSupabaseConnection() {
     try {
         const _supabase = supabase.createClient(config.SUPABASE_URL, config.SUPABASE_KEY);
